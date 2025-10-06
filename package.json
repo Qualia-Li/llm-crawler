@@ -1,0 +1,17 @@
+{
+  "name": "ds-grub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "dependencies": {
+    "@puppeteer/replay": "^3.1.3",
+    "puppeteer-core": "^24.23.0"
+  }
+}

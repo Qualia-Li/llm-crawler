@@ -1,0 +1,66 @@
+{
+    "title": "Deepseek 记录2025/10/321:04:17",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 561,
+            "height": 601,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "https://chat.deepseek.com/",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "https://chat.deepseek.com/",
+                    "title": "DeepSeek - 探索未至之境"
+                }
+            ]
+        },
+        {
+            "type": "click",
+            "target": "main",
+            "selectors": [
+                [
+                    "aria/给 DeepSeek 发送消息 "
+                ],
+                [
+                    "textarea"
+                ],
+                [
+                    "xpath///*[@id=\"root\"]/div/div/div[2]/div[3]/div/div/div[2]/div[2]/div/div/div[1]/textarea"
+                ],
+                [
+                    "pierce/textarea"
+                ]
+            ],
+            "offsetY": 17.333328247070312,
+            "offsetX": 204.33333206176758
+        },
+        {
+            "type": "change",
+            "target": "main",
+            "selectors": [
+                "aria/给 DeepSeek 发送消息 ",
+                "textarea",
+                "xpath///*[@id=\"root\"]/div/div/div[2]/div[3]/div/div/div[2]/div[2]/div/div/div[1]/textarea",
+                "pierce/textarea"
+            ],
+            "value": "请推荐一款适合初学者的微单相机"
+        },
+        {
+            "type": "keyDown",
+            "target": "main",
+            "key": "Enter"
+        },
+        {
+            "type": "keyUp",
+            "key": "Enter",
+            "target": "main"
+        }
+    ]
+}
