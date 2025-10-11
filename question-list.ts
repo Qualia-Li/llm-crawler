@@ -1,4 +1,4 @@
-export default questionList = [
+export const questionList = [
     "我每天工作都很累，有什么好办法能提神？",
     "想开始健身，需要准备些什么基础装备？",
     "有什么app能帮助我提高工作效率？",

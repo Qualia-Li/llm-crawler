@@ -3,8 +3,8 @@
     "steps": [
         {
             "type": "setViewport",
-            "width": 561,
-            "height": 601,
+            "width": 800,
+            "height": 600,
             "deviceScaleFactor": 1,
             "isMobile": false,
             "hasTouch": false,
@@ -25,18 +25,12 @@
             "type": "click",
             "target": "main",
             "selectors": [
-                [
-                    "aria/给 DeepSeek 发送消息 "
-                ],
-                [
-                    "textarea"
-                ],
+                ["aria/给 DeepSeek 发送消息 "],
+                ["textarea"],
                 [
                     "xpath///*[@id=\"root\"]/div/div/div[2]/div[3]/div/div/div[2]/div[2]/div/div/div[1]/textarea"
                 ],
-                [
-                    "pierce/textarea"
-                ]
+                ["pierce/textarea"]
             ],
             "offsetY": 17.333328247070312,
             "offsetX": 204.33333206176758
@@ -61,6 +55,15 @@
             "type": "keyUp",
             "key": "Enter",
             "target": "main"
+        },
+        {
+            "type": "waitForElement",
+            "target": "main",
+            "selectors": [
+                "div.ds-markdown",
+                "xpath///*[@id=\"root\"]/div/div/div[2]/div[3]/div/div[2]/div/div[2]/div[1]/div[2]/div[1]/div[2]",
+                "pierce/div.ds-markdown"
+            ]
         }
     ]
 }
