@@ -22,7 +22,8 @@ export async function askQuark(page: Page, question: string) {
 
     // Wait for the search results to load
     await page.waitForSelector(
-        "div.sgs-common-paa > div > div.qk-view > div:nth-of-type(1) div.qk-text",
+        // "div.sgs-common-paa > div > div.qk-view > div:nth-of-type(1) div.qk-text",
+        '[data-bar="Generated"]',
         { timeout: 70_0000 }
     );
 
