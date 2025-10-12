@@ -54,3 +54,4 @@ __fixtures__/custom-modules-dir/patches/
 
 ## user
 user-data
+results*.json

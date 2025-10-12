@@ -2,6 +2,7 @@ import puppeteer from "puppeteer";
 import { questionList } from "./question-list";
 import fs from "node:fs/promises";
 import { askDeepseek } from "./askDeepseek";
+import { askQuark } from "./askQuark";
 
 const results: {
     question: string;
@@ -17,11 +18,20 @@ const Main = async () => {
         userDataDir: "./user-data",
     });
 
+    //Set up page
     const page = await browser.newPage();
+    await page.setViewport({
+        width: 800,
+        height: 600,
+        deviceScaleFactor: 1,
+        isMobile: false,
+        hasTouch: false,
+        isLandscape: false,
+    });
 
     //Question Loop
     for (const question of questionList) {
-        const answer = await askDeepseek(page, question);
+        const answer = await askQuark(page, question);
         results.push({
             question: question,
             answer: answer,
@@ -33,7 +43,10 @@ const Main = async () => {
             )
         );
         //localforage.setItem("results", results);
-        fs.writeFile("./results.json", JSON.stringify(results));
+        fs.writeFile(
+            `./results${/* new Date().toLocaleString().replaceAll("/", "-") */""}.json`,
+            JSON.stringify(results),
+        );
     }
 };
 

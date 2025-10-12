@@ -1,15 +1,6 @@
 import { Page } from "puppeteer";
 
 export async function askDeepseek(page: Page, question: string) {
-    // Set viewport
-    await page.setViewport({
-        width: 800,
-        height: 600,
-        deviceScaleFactor: 1,
-        isMobile: false,
-        hasTouch: false,
-        isLandscape: false,
-    });
 
     // Navigate to the URL
     await page.goto(
