@@ -6,7 +6,7 @@
     "configurations": [
         {
             "command": "tsx ${workspaceFolder}/index.ts",
-            "name": "tsx index.ts",
+            "name": "tsx watch",
             "request": "launch",
             "type": "node-terminal"
         }

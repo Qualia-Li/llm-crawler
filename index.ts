@@ -1,13 +1,13 @@
-import puppeteer, { Page } from "puppeteer";
+import puppeteer from "puppeteer";
 import { questionListAdvanced, SearchKeyword } from "./question-list";
 import { askQuark } from "./askQuark";
-import { exit } from "node:process";
 import { verbose } from "sqlite3";
 import { askDeepseek } from "./askDeepseek";
+import { QuestionLoop } from "./QuestionLoop";
 
 //DB init
 const sqlite3 = verbose();
-const db = new sqlite3.Database("./sqlite3.db");
+export const db = new sqlite3.Database("./sqlite3.db");
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS result (
         question TEXT PRIMARY KEY,
@@ -41,7 +41,7 @@ const engines = {
     },
 };
 
-const errList: SearchKeyword[] = [];
+export const errList: SearchKeyword[] = [];
 const Main = async () => {
     //Launch browser
     const browser = await puppeteer.launch({
@@ -62,9 +62,10 @@ const Main = async () => {
     });
 
     //Question Loop
-    do {
-        await QuestionLoop(page);
-    } while (errList.length);
+    await QuestionLoop(page, questionListAdvanced);
+    while (errList.length) {
+        await QuestionLoop(page, errList);
+    }
 
     //Close DB
     db.close(() => {
@@ -73,48 +74,4 @@ const Main = async () => {
 };
 
 Main();
-async function QuestionLoop(page: Page) {
-    for (const question of questionListAdvanced) {
-        try {
-            //Run
-            const answer = await askQuark(page, question.coreKeywords + question.extendedKeywords);
 
-            //Process data
-            dbSaveResult(question, answer);
-        } catch (error) {
-            console.log("Error while processing: " + question);
-            console.log(error);
-            dbErrLog(question, error);
-            errList.push(question);
-            if (errList.length >= 5) exit(1);
-        }
-    }
-
-    function dbSaveResult(question: SearchKeyword, answer: string) {
-        db.serialize(() => {
-            db.run(
-                `INSERT OR REPLACE INTO result (question, answer, refer, engine) VALUES (?, ?, ?, ?)`,
-                [
-                    JSON.stringify(question),
-                    answer,
-                    "yet to do:", //TODO
-                    askQuark.name,
-                ]
-            );
-        });
-    }
-
-    function dbErrLog(question: SearchKeyword, error: unknown) {
-        db.serialize(() => {
-            db.run(
-                `INSERT OR REPLACE INTO errorlog (question, message) VALUES (?, ?)`,
-                [
-                    [question.coreKeywords, question.extendedKeywords].join(
-                        "，"
-                    ),
-                    (error as Error).message || String(error),
-                ]
-            );
-        });
-    }
-}

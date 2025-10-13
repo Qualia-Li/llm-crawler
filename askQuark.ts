@@ -17,7 +17,7 @@ export async function askQuark(page: Page, question: string) {
 
     // Send message
     //await page.keyboard.press("Enter");
-    const waitAnswer = page.waitForNavigation({ waitUntil: "networkidle0" });
+    const waitAnswer = page.waitForNavigation({ waitUntil: "networkidle0" ,timeout:50_0000});
     await page.locator(`.search-bar-container-inner-btn`).click();
 
     // Wait for the search results to load
