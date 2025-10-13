@@ -109,7 +109,7 @@ async function QuestionLoop(page: Page) {
             db.run(
                 `INSERT OR REPLACE INTO errorlog (question, message) VALUES (?, ?)`,
                 [
-                    [question.coreKeywords, question.extendedKeywords[1]].join(
+                    [question.coreKeywords, question.extendedKeywords].join(
                         "，"
                     ),
                     (error as Error).message || String(error),
