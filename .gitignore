@@ -55,3 +55,5 @@ __fixtures__/custom-modules-dir/patches/
 ## user
 user-data
 results*.json
+sqlite3.db
+questions-advanced.csv 

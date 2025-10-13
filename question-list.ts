@@ -103,3 +103,40 @@ export const questionList = [
     "哪种月见草油可以缓解经期不适？",
     "想买一个多功能锅，能煎炸炖煮的，有推荐吗？",
 ];
+
+import * as csv from "csv";
+import { createReadStream } from "node:fs";
+
+export interface SearchKeyword {
+    // 核心词 (Core Keywords)
+    coreKeywords: string;
+
+    // 拓展词 (Extended Keywords)
+    extendedKeywords: string;
+
+    // 平台 (Platforms)
+    platforms: string[];
+
+    // 品牌名 (Brand Names)
+    brandNames: string;
+}
+
+export const questionListAdvanced: SearchKeyword[] = [];
+let tmpBrandName = "No Brand";
+createReadStream("./questions-advanced.csv")
+    .pipe(csv.parse())
+    .on("data", (row: string[]) => {
+        //console.log(row[0]);
+        if(row[0] == "核心词") return ;
+        tmpBrandName = row[0] ? row[0] : tmpBrandName;
+        questionListAdvanced.push({
+            coreKeywords: tmpBrandName,
+            extendedKeywords: row[1],
+            platforms: row[2].split("，"),
+            brandNames: row[3],
+        });
+    })
+    .on("end", () => {
+        console.log("CSV file successfully processed");
+        //console.log(questionListAdvanced);
+    });
