@@ -1,8 +1,7 @@
 import puppeteer from "puppeteer";
-import { questionListAdvanced, SearchKeyword } from "./question-list";
-import { askQuark } from "./askQuark";
-import { verbose } from "sqlite3";
-import { askDeepseek } from "./askDeepseek";
+import { questionList, SearchKeyword } from "./question-list";
+import { askQuark } from "./engines/askQuark";
+import { askDeepseek } from "./engines/askDeepseek";
 import { QuestionLoop } from "./QuestionLoop";
 
 //DB init
@@ -51,18 +50,10 @@ const Main = async () => {
     });
 
     //Set up page
-    const page = await browser.newPage();
-    await page.setViewport({
-        width: 1000,
-        height: 600,
-        deviceScaleFactor: 1,
-        isMobile: false,
-        hasTouch: false,
-        isLandscape: false,
-    });
+
 
     //Question Loop
-    await QuestionLoop(page, questionListAdvanced);
+    await QuestionLoop(page, questionList);
     while (errList.length) {
         await QuestionLoop(page, errList);
     }

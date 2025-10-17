@@ -1,7 +1,7 @@
 import { exit } from "process";
 import { Page } from "puppeteer";
 import { errList, db } from ".";
-import { askQuark } from "./askQuark";
+import { askQuark } from "./engines/askQuark";
 import { SearchKeyword } from "./question-list";
 
 const ASK_START = 50
@@ -12,7 +12,7 @@ export async function QuestionLoop(page: Page, list: SearchKeyword[]) {
             //Run
             const answer = await askQuark(
                 page,
-                question.coreKeywords + question.extendedKeywords
+                question.coreKeyword + question.extendedKeywords
             );
 
             //Process data
@@ -45,7 +45,7 @@ export async function QuestionLoop(page: Page, list: SearchKeyword[]) {
             db.run(
                 `INSERT OR REPLACE INTO errorlog (question, message) VALUES (?, ?)`,
                 [
-                    [question.coreKeywords, question.extendedKeywords].join(
+                    [question.coreKeyword, question.extendedKeywords].join(
                         "，"
                     ),
                     (error as Error).message || String(error),
