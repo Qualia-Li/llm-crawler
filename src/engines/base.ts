@@ -8,6 +8,7 @@ export class BaseEngine {
     initialized:boolean = false;
 
     async init() {
+        if(this.initialized) return this.ask
         this.page = await globalThis.browser.newPage();
         await this.page.setViewport({
             width: 1000,
@@ -17,16 +18,13 @@ export class BaseEngine {
             hasTouch: false,
             isLandscape: false,
         });
+        // await this.page.setRequestInterception(true);
         this.initialized=true;
         return this.ask
     }
-
-    /**
-     *
-     * @param _question pointer
-     */
     async ask(_question:SearchKeyword){
         throw new Error("Not implemented");
+        return [""]
     }
 
     // @ts-ignore

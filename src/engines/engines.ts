@@ -15,4 +15,4 @@ export const engines = {
     // kimi: notImpl,
 };
 
-export type Engines = "deepseek"|"豆包"|"元宝"|"文心一言"|"夸克"|"kimi"
+export type Engines = "deepseek"/*|"豆包"|"元宝"|"文心一言"|"夸克"|"kimi"*/

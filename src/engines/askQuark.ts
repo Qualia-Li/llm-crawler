@@ -1,36 +1,55 @@
-import { Locator, Page, Viewport } from "puppeteer";
+import {BaseEngine} from "./base";
+import {SearchKeyword} from "../question-list";
+import {Engines} from "./engines";
 
-export async function askQuark(page: Page, question: string) {
-    // Navigate to the page
-    await page.goto("https://ai.quark.cn/", { waitUntil: "networkidle0" });
+export class AskQuark extends BaseEngine {
+    engineName: Engines = "quark";
 
-    // Click on the search input field
-    await page.click("textarea");
-    // xpath///*[@id=\"root\"]/div/div[1]/div/div[2]/div/div[2]/div/div/div[2]/div[1]/div/textarea
+    async ask(question: SearchKeyword) {
+        /* Quark do not support appending. */
+        const arr = [
+            await this.askOne(question.coreKeyword),
+        ]
+        for (const extendedKeyword of question.extendedKeywords) {
+            arr.push(await this.askOne(extendedKeyword))
+        }
 
-    // Type the search query
-    await page.type("textarea", question);
+        return arr
+    }
 
-    // Ensure think
-    if (!(await page.$(".deep-think-bar.active")))
-        await page.locator(".deep-think-bar").click();
+    private async askOne(text: string) {
+        // Navigate to the page
+        await this.page.goto("https://ai.quark.cn/", {waitUntil: "networkidle0"});
 
-    // Send message
-    //await page.keyboard.press("Enter");
-    const waitAnswer = page.waitForNavigation({ waitUntil: "networkidle0" ,timeout:50_0000});
-    await page.locator(`.search-bar-container-inner-btn`).click();
+        // Click on the search input field
+        await this.page.click("textarea");
+        // xpath///*[@id=\"root\"]/div/div[1]/div/div[2]/div/div[2]/div/div/div[2]/div[1]/div/textarea
 
-    // Wait for the search results to load
-    await waitAnswer
-    await page.waitForSelector(
-        // "div.sgs-common-paa > div > div.qk-view > div:nth-of-type(1) div.qk-text",
-        // '[data-bar="Generated"]',
-        ".qk-md-paragraph",
-        { timeout: 70_0000 }
-    );
+        // Type the search query
+        await this.page.type("textarea", text);
 
-    return await page
-        .locator("#sgs-container")
-        .map((el) => el.innerHTML)
-        .wait();
+        // Ensure think
+        if (!(await this.page.$(".deep-think-bar.active"))) {
+            await this.page.locator(".deep-think-bar").click();
+        }
+
+        // Send message
+        //await this.page.keyboard.press("Enter");
+        const waitAnswer = this.page.waitForNavigation({waitUntil: "networkidle0", timeout: 500000}); // Note: timeout seems very high, maybe 50000 was intended?
+        await this.page.locator(`.search-bar-container-inner-btn`).click();
+
+        // Wait for the search results to load
+        await waitAnswer;
+        await this.page.waitForSelector(
+            // "div.sgs-common-paa > div > div.qk-view > div:nth-of-type(1) div.qk-text",
+            // '[data-bar="Generated"]',
+            ".qk-md-paragraph",
+            {timeout: 700000} // Note: timeout seems very high, maybe 70000 was intended?
+        );
+
+        return await this.page
+            .locator("#sgs-container")
+            .map((el) => el.innerHTML)
+            .wait();
+    }
 }

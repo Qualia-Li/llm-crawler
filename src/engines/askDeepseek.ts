@@ -1,9 +1,24 @@
 import {BaseEngine} from "./base";
 import {SearchKeyword} from "../question-list";
+import {Engines} from "./engines";
 
 export class askDeepseek extends BaseEngine {
-    engineName="deepseek"
+    engineName: Engines = "deepseek"
+
     async ask(question: SearchKeyword) {
+        const client = await this.page.createCDPSession()
+        client.send()
+        this.page.on('request', (request) => {
+            /**https://chromedevtools.github.io/devtools-protocol/tot/Network/#method-streamResourceContent*/
+            if (request.isInterceptResolutionHandled()) return;
+            const url = request.url();
+            if (url === 'https://chat.deepseek.com/api/v0/chat/completion') {
+                console.log(request.client)
+            }
+            // request.continue();
+        });
+
+
         // Navigate to the URL
         await this.page
             .goto(
@@ -13,19 +28,14 @@ export class askDeepseek extends BaseEngine {
             );
 
         // Click on the textarea using the most reliable selector
-        const textareaSelector = "textarea";
-        await this.page.waitForSelector(textareaSelector);
-        await this.page.click(textareaSelector, {
-            offset: {
-                x: 204.33333206176758,
-                y: 17.333328247070312,
-            },
-        });
+        await this.page.waitForSelector("textarea");
+        await this.page.click("textarea",);
 
         // Type the message
-        await this.page.type(textareaSelector, question.coreKeyword, {
+        await this.page.type("textarea", question.coreKeyword, {
             delay: 100, // Add slight delay for more natural typing
         });
+
 
         // Press Enter key
         await this.page.keyboard.press("Enter");
@@ -35,8 +45,14 @@ export class askDeepseek extends BaseEngine {
             `::-p-xpath(//*[@id="root"]/div/div/div[2]/div[3]/div/div[2]/div/div[2]/div[1]/div[2]/div[3]/div[1]/div[1])`,
             {timeout: 0}
         );
+
+        //append
+        for (const questionElement of question.extendedKeywords) {
+            //todo
+        }
+
         const resEl = this.page.locator("div.ds-markdown").setTimeout(500000);
         const text = await resEl.map((el) => el.innerHTML).wait();
-        question.platforms.set(this.engineName, [text])
+        return [text]
     }
 }

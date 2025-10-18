@@ -1,6 +1,10 @@
-import puppeteer, {Browser} from "puppeteer";
-import {questionList} from "./question-list";
+import puppeteer from "puppeteer";
+import {SearchKeyword} from "./question-list";
 
+declare global {
+    var browser: import('puppeteer').Browser;
+    var questionList: SearchKeyword[];
+}
 const Main = async () => {
     //Launch browser
     globalThis.browser = await puppeteer.launch({
@@ -10,15 +14,10 @@ const Main = async () => {
     });
 
     //Question Loop
+    await import("./question-list")
     const {QuestionLoop} = await import("./QuestionLoop")
-    await QuestionLoop(questionList);
+    await QuestionLoop();
 };
-
-declare global {
-    interface globalThis {
-        browser: Browser;
-    }
-}
 
 Main();
 

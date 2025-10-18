@@ -1,24 +1,33 @@
-import {SearchKeyword} from "./question-list";
 import {engines} from "./engines/engines";
 import {BaseEngine} from "./engines/base";
 
-export async function QuestionLoop(list: SearchKeyword[]) {
+import {save} from "@/src/utils/save";
+
+export async function QuestionLoop() {
     // Each question
-    for (const question of list) {
-        const promises:Promise<void>[] = []
+    for (const question of global.questionList) {
+        const promises = []
         // Each engine
         for (const plat of Array.from(question.platforms.keys())) {
+            console.log(question.platforms.get(plat)?.length)
+            if(question.platforms.get(plat)?.length) continue
 
-            let a=engines[plat] as BaseEngine
-            if(!a) continue;
-            let promise = a.ask(question)
-            promises.push(promise);
-
-            // log
-            if(question.platforms.get(plat)?.length != 0) {
-                console.log(question.platforms.get(plat))
-            }
+            let engine = engines[plat] as BaseEngine
+            if (!engine) continue;
+            let res = (async () => ({
+                text: await engine.ask(question), plat: plat
+            }))()
+            promises.push(res);
         }
-        await Promise.all(promises)
+        let result = await Promise.all(promises)
+        result.forEach(function (value) {
+            question.platforms.set(value.plat, value.text)
+        })
+        // console.log(questionList)
+
+        //Save
+        save().then(function () {
+            console.log("Question Loop saved.");
+        })
     }
 }

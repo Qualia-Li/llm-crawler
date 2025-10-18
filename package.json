@@ -2,7 +2,8 @@
   "name": "ds-grub",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "run": "tsx src/index.ts"
