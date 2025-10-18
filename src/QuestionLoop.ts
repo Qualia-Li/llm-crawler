@@ -1,56 +1,24 @@
-import { exit } from "process";
-import { Page } from "puppeteer";
-import { errList, db } from ".";
-import { askQuark } from "./engines/askQuark";
-import { SearchKeyword } from "./question-list";
+import {SearchKeyword} from "./question-list";
+import {engines} from "./engines/engines";
+import {BaseEngine} from "./engines/base";
 
-const ASK_START = 50
+export async function QuestionLoop(list: SearchKeyword[]) {
+    // Each question
+    for (const question of list) {
+        const promises:Promise<void>[] = []
+        // Each engine
+        for (const plat of Array.from(question.platforms.keys())) {
 
-export async function QuestionLoop(page: Page, list: SearchKeyword[]) {
-    for (const question of list.slice(ASK_START)) {
-        try {
-            //Run
-            const answer = await askQuark(
-                page,
-                question.coreKeyword + question.extendedKeywords
-            );
+            let a=engines[plat] as BaseEngine
+            if(!a) continue;
+            let promise = a.ask(question)
+            promises.push(promise);
 
-            //Process data
-            dbSaveResult(question, answer);
-        } catch (error) {
-            console.log("Error while processing: " + question);
-            console.log(error);
-            dbErrLog(question, error);
-            errList.push(question);
-            if (errList.length >= 5) exit(1);
+            // log
+            if(question.platforms.get(plat)?.length != 0) {
+                console.log(question.platforms.get(plat))
+            }
         }
-    }
-
-    function dbSaveResult(question: SearchKeyword, answer: string) {
-        db.serialize(() => {
-            db.run(
-                `INSERT OR REPLACE INTO result (question, answer, refer, engine) VALUES (?, ?, ?, ?)`,
-                [
-                    JSON.stringify(question),
-                    answer,
-                    "yet to do:", //TODO
-                    askQuark.name,
-                ]
-            );
-        });
-    }
-
-    function dbErrLog(question: SearchKeyword, error: unknown) {
-        db.serialize(() => {
-            db.run(
-                `INSERT OR REPLACE INTO errorlog (question, message) VALUES (?, ?)`,
-                [
-                    [question.coreKeyword, question.extendedKeywords].join(
-                        "，"
-                    ),
-                    (error as Error).message || String(error),
-                ]
-            );
-        });
+        await Promise.all(promises)
     }
 }
