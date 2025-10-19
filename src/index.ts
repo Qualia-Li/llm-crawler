@@ -19,9 +19,9 @@ const Main = async () => {
     await QuestionLoop();
 };
 
-Main().catch(function (er
+Main()/*.catch(function (er
 ){
     console.error(er)
     Main()
-});
+});*/
 

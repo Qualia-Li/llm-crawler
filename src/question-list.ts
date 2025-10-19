@@ -43,11 +43,13 @@ function parasCSV() {
 }
 
 if (fs.existsSync(".//data/result.json")/*  && false*/) {
+    //@ts-ignore
     questionList = (await import("../data/result.json")).default;
     for(let q of questionList){
         q.platforms = new Map(Object.entries(q.platforms)) as SearchKeyword["platforms"]
     }
-    console.log(questionList);
+    // console.log(questionList);
+    console.log("Question list loaded from result.json")
 } else {
     questionList = parasCSV()
 }

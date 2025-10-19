@@ -2,17 +2,19 @@ import {BaseEngine} from "./base";
 import {SearchKeyword} from "../question-list";
 import {Engines} from "./engines";
 
-export class AskQuark extends BaseEngine {
-    engineName: Engines = "quark";
+export class askQuark extends BaseEngine {
+    engineName: Engines = "夸克";
 
     async ask(question: SearchKeyword) {
         /* Quark do not support appending. */
         const arr = [
             await this.askOne(question.coreKeyword),
         ]
-        for (const extendedKeyword of question.extendedKeywords) {
+
+        //no need now
+        /*for (const extendedKeyword of question.extendedKeywords) {
             arr.push(await this.askOne(extendedKeyword))
-        }
+        }*/
 
         return arr
     }
