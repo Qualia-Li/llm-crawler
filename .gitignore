@@ -1,4 +1,9 @@
-# Logs
+## user
+user-data
+results*.json
+
+
+ Logs
 logs
 *.log
 npm-debug.log*
@@ -52,8 +57,4 @@ __fixtures__/custom-modules-dir/**/fake_modules/
 __fixtures__/custom-modules-dir/cache/
 __fixtures__/custom-modules-dir/patches/
 
-## user
-user-data
-results*.json
-sqlite3.db
-questions-advanced.csv 
+

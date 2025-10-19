@@ -54,7 +54,9 @@ function extractAnchorElements(htmlString: string): string {
     <li v-for="(item,index) of data" class="item">
       <details><
         <summary>{{ item.coreKeyword }}
-          <span class="finished" v-if="item.platforms.deepseek?.length">finished</span>
+          <span class="finished" v-for="(_html,engine) in item.platforms">
+              <span v-if="_html?.length">  {{ engine }}</span>
+          </span>
         </summary>
         <h2>Extended</h2>
         <show-hide :default="false">
