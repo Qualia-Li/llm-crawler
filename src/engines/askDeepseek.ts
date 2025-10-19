@@ -2,6 +2,7 @@ import {BaseEngine} from "./base";
 import {SearchKeyword} from "../question-list";
 import {Engines} from "./engines";
 import TurndownService from "turndown"
+import {convertInlineToReference} from "@/src/utils/markdown";
 
 export class askDeepseek extends BaseEngine {
     engineName: Engines = "deepseek"
@@ -75,17 +76,13 @@ export class askDeepseek extends BaseEngine {
             {timeout: 0}
         );
 
-        //append
-        for (const questionElement of question.extendedKeywords) {
-            //todo
-        }
-
         const resEl = this.page.locator("div.ds-markdown").setTimeout(500000);
         const text = await resEl.map((el) => el.innerHTML).wait();
         var turndownService = new TurndownService();
 
         var markdown = turndownService.turndown(text);
-        console.log(markdown); // Outputs: # Hello world!
+        markdown = convertInlineToReference(markdown)
+        console.log(markdown);
         return [markdown]
     }
 }
