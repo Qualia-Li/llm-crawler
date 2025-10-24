@@ -1,24 +1,24 @@
-import {askDeepseek} from "./askDeepseek";
+import {BaseEngine} from "@/src/engines/base";
+
 import {askQuark} from "@/src/engines/askQuark";
+import {askDeepseek} from "@/src/engines/askDeepseek";
+import {askKimi} from "@/src/engines/askKimi";
 
-async function getDeepseek() {
-    let a = new askDeepseek()
-    await a.init()
-    return a
-}
-async function getQuark() {
-    let a = new askQuark()
+async function getEngine(engineClass:typeof BaseEngine) {
+    let a = new engineClass()
     await a.init()
     return a
 }
 
-export const engines = {
-    deepseek:await getDeepseek(),
+export const engines:{
+    [key in Engines]:BaseEngine
+} = {
+    deepseek:await getEngine(askDeepseek),
     // 豆包: notImpl,
     // 元宝: notImpl,
     // 文心一言: notImpl,
-    夸克: await getQuark(),
-    // kimi: notImpl,
+    夸克: await getEngine(askQuark),
+    kimi: await getEngine(askKimi),
 };
 
-export type Engines = "deepseek"|"夸克"/*|"豆包"|"元宝"|"文心一言"|"kimi"*/
+export type Engines = "deepseek"|"夸克"|"kimi"/*|"豆包"|"元宝"|"文心一言"*/

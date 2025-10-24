@@ -5,7 +5,9 @@ declare global {
     var browser: import('puppeteer').Browser;
     var questionList: SearchKeyword[];
 }
-const Main = async () => {
+
+//Main
+{
     //Launch browser
     globalThis.browser = await puppeteer.launch({
         headless: false,
@@ -17,11 +19,4 @@ const Main = async () => {
     await import("./question-list")
     const {QuestionLoop} = await import("./QuestionLoop")
     await QuestionLoop();
-};
-
-Main()/*.catch(function (er
-){
-    console.error(er)
-    Main()
-});*/
-
+}
