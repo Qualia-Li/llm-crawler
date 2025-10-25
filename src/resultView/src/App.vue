@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, type Ref, ref} from "vue";
+import {computed, type Ref, ref, watch} from "vue";
 import ShowHide from "@/components/showHide.vue";
 
 interface SearchKeyword {
@@ -16,65 +16,68 @@ interface SearchKeyword {
   brandNames: string;
 }
 
-const datastr = ref("{}")
-const data: Ref<SearchKeyword[]> = computed(() => JSON.parse(datastr.value));
+const offsetEnd = ref(10)
+const offsetStart = ref(0)
+const data: Ref<SearchKeyword[]> = ref([]);
 
-(async () => {
+const offset = ref(offsetStart.value)
 
-  datastr.value = await (await fetch("./result.json")).text()
-})()
+const getPage = () => {
+  const id = setInterval(async function () {
+    const text = await (await fetch(`http://localhost:8080?offset=${offset.value}`)).text()
+    console.log(text)
+    offset.value++
+    if (text === "no more" || offset.value > offsetEnd.value) clearInterval(id)
+    else data.value.push(JSON.parse(text));
 
-setInterval(async function () {
-  datastr.value = await (await fetch("./result.json")).text()
-
-  //console.log(datastr.value)
-}, 10_000)
-
-function extractAnchorElements(htmlString: string): string {
-  // Create a temporary container element
-  const tempContainer = document.createElement('div');
-  tempContainer.innerHTML = htmlString;
-
-  // Extract all <a> elements
-  const anchorElements = tempContainer.querySelectorAll('a');
-
-  // Serialize anchor elements to HTML string
-  return Array.from(anchorElements)
-      .map(anchor => anchor.outerHTML)
-      .join('');
+  }, 100);
+  return id
 }
+let id = getPage();
+watch([offsetEnd, offsetStart], () => {
+  data.value.length = 0
+  offset.value = offsetStart.value
+  clearInterval(id)
+  id = getPage();
+})
+
 </script>
 
 <template>
-  <label>json
-    <textarea class="form-control" v-model="datastr"/>
-  </label>
+  <div class="input-group">
+    <label for="start" class="input-group-text">Start:</label>
+    <input name="start" type="number" class="form-control" v-model="offsetStart"/>
+    <label for="end" class="input-group-text">End:</label>
+    <input name="end" type="number" class="form-control" v-model="offsetEnd"/>
+  </div>
   <br>
   <ol>
-    <li v-for="(item,index) of data" class="item">
-      <details><
-        <summary>{{ item.coreKeyword }}
-          <span class="finished" v-for="(_html,engine) in item.platforms">
+    <TransitionGroup name="slide-in-top">
+      <li v-for="(item,index) of data" :key="item.coreKeyword" class="item">
+        <details><
+          <summary>{{ item.coreKeyword }}
+            <span class="finished" v-for="(_html,engine) in item.platforms">
               <span v-if="_html?.length">  {{ engine }}</span>
           </span>
-        </summary>
-        <h2>Extended</h2>
-        <show-hide :default="false">
-          <ul>
-            <li class="extended" v-for="word in item.extendedKeywords">
-              {{ word }}
-            </li>
-          </ul>
-        </show-hide>
-        <br><br>
-        <div v-for="(html,engine) in item.platforms" :data-index="index">
-          {{ engine }}:
+          </summary>
+          <h2>Extended</h2>
           <show-hide :default="false">
-            <pre v-html="html"></pre>
+            <ul>
+              <li class="extended" v-for="word in item.extendedKeywords">
+                {{ word }}
+              </li>
+            </ul>
           </show-hide>
-        </div>
-      </details>
-    </li>
+          <br><br>
+          <div v-for="(html,engine) in item.platforms" :data-index="index">
+            {{ engine }}:
+            <show-hide :default="false">
+              <pre v-html="html"></pre>
+            </show-hide>
+          </div>
+        </details>
+      </li>
+    </TransitionGroup>
   </ol>
 </template>
 
@@ -90,6 +93,9 @@ a::after {
 
 .item {
   border: solid 1px;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .extended {
@@ -99,6 +105,7 @@ a::after {
 .finished {
   color: coral;
   float: right;
+  margin: 0 5px ;
 }
 
 summary {

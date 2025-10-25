@@ -21,15 +21,30 @@ a,
   }
 }
 
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center;
-  }
+/* --- 定义从上方滑入的动画 --- */
+.slide-in-top-enter-active {
+    transition: transform,opacity 0.3s ease-out;
+}
 
-  #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
+.slide-in-top-leave-active {
+    transition: transform,opacity 0.3s ease-in;
+}
+
+/* 进入过渡的开始状态 */
+.slide-in-top-enter-from {
+    opacity: 0;
+}
+
+.slide-in-top-enter-to {
+    opacity: 1;
+}
+
+/* 离开过渡的开始状态 */
+.slide-in-top-leave-from {
+    opacity: 1;
+}
+
+/* 离开过渡的结束状态 */
+.slide-in-top-leave-to {
+    opacity: 0;
 }

@@ -8,6 +8,9 @@ declare global {
 
 //Main
 {
+    //Load saved data
+    await import("./question-list")
+
     //Launch browser
     globalThis.browser = await puppeteer.launch({
         headless: false,
@@ -15,8 +18,12 @@ declare global {
         userDataDir: "./user-data",
     });
 
+    // Server
+    await import('./utils/Database/server')
+    //const resultPage = await browser.newPage();
+    //resultPage.goto("http://localhost:8080",{timeout:0})
+
     //Question Loop
-    await import("./question-list")
     const {QuestionLoop} = await import("./QuestionLoop")
     await QuestionLoop();
 }
