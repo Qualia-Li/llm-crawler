@@ -17,32 +17,18 @@ interface SearchKeyword {
 }
 
 const datastr = ref("{}")
-const data: Ref<SearchKeyword[]> = computed(() => JSON.parse(datastr.value));
+const data: Ref<SearchKeyword[]> = ref([]);
 
-(async () => {
+const offset = ref(1)
 
-  datastr.value = await (await fetch("./result.json")).text()
-})()
+const id = setInterval(async function () {
+  const text = await (await fetch(`http://localhost:8080?offset=${offset.value}`)).text()
+  console.log(text)
+  if (text === "no more") clearInterval(id)
+  else data.value.push(JSON.parse(text));
 
-setInterval(async function () {
-  datastr.value = await (await fetch("./result.json")).text()
+}, 1_000)
 
-  //console.log(datastr.value)
-}, 10_000)
-
-function extractAnchorElements(htmlString: string): string {
-  // Create a temporary container element
-  const tempContainer = document.createElement('div');
-  tempContainer.innerHTML = htmlString;
-
-  // Extract all <a> elements
-  const anchorElements = tempContainer.querySelectorAll('a');
-
-  // Serialize anchor elements to HTML string
-  return Array.from(anchorElements)
-      .map(anchor => anchor.outerHTML)
-      .join('');
-}
 </script>
 
 <template>
@@ -90,6 +76,9 @@ a::after {
 
 .item {
   border: solid 1px;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .extended {

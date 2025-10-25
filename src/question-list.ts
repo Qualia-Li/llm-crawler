@@ -44,7 +44,7 @@ function parasCSV() {
 
 if (fs.existsSync(".//data/result.json")/*  && false*/) {
     //@ts-ignore
-    questionList = (await import("../data/result.json")).default;
+    questionList = JSON.parse(fs.readFileSync('./data/result.json', 'utf8'))
     for(let q of questionList){
         q.platforms = new Map(Object.entries(q.platforms)) as SearchKeyword["platforms"]
     }

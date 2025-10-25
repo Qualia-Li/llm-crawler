@@ -28,9 +28,9 @@ export class askKimi extends BaseEngine {
         let text = await resEl.map((el) => el.innerHTML).wait();
 
         //Refer
-        const links = this.page.locator(`.sites`)
+/*        const links = this.page.locator(`.sites`)
         const referText = await links.map(link=>link.innerHTML).wait()
-        text = `${text}\n\n\n <h2>References</h2>\n (${referText})`
+        text = `${text}\n\n\n <h2>References</h2>\n (${referText})`*/
 
         // Return
         return [text]

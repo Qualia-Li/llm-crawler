@@ -24,6 +24,7 @@ export async function QuestionLoop() {
                 //debug
                 //if(Math.random() > 0.5){throw new Error("dbg")}
             } catch (err) {
+                console.log(plat)
                 console.log(err)
             }
         }
