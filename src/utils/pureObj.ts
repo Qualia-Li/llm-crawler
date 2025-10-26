@@ -21,3 +21,7 @@ export function convertMapToObj(value: unknown): any {
     // Return primitives as-is (string, number, boolean, null, undefined)
     return value;
 }
+
+export function getDataJson(data: any) {
+    return JSON.stringify(convertMapToObj(data));
+}

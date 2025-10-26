@@ -1,9 +1,5 @@
 import fs from "node:fs";
-import {convertMapToObj} from "@/src/utils/pureObj";
-
-export function getDataJson(data:any) {
-    return JSON.stringify(convertMapToObj(data));
-}
+import {getDataJson} from "@/src/utils/pureObj";
 
 export async function save() {
     console.log(questionList[0].platforms)

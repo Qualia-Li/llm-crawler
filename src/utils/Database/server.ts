@@ -1,5 +1,6 @@
 import * as http from "node:http";
-import {getDataJson} from "@/src/utils/save";
+
+import {getDataJson} from "@/src/utils/pureObj";
 
 http.createServer(async (req, res) => {
     let offset = parseInt(req.url?.split("?offset=")[1] || "0")

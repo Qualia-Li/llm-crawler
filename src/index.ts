@@ -8,6 +8,8 @@ declare global {
 
 //Main
 {
+    //Load env
+    await import("dotenv/config")
     //Load saved data
     await import("./question-list")
 
