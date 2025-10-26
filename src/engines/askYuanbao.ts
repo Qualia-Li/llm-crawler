@@ -3,14 +3,14 @@ import {SearchKeyword} from "@/src/question-list";
 import {Engines} from "@/src/engines/engines";
 
 export class askYuanbao extends BaseEngine {
+
+    engineName:Engines="元宝"
     /**
      * Sends a question to Yuanbao and waits for the AI response.
      * @param {string} question - The user's input question.
      * @returns {Promise<string>} - The inner HTML of the AI's response message.
      */
-    engineName:Engines="元宝"
-
-    async askQuestion(question:string) {
+    async askOneQuestion(question:string): Promise<string> {
         // Navigate to the chat URL
         await this.page.goto('https://yuanbao.tencent.com/chat/naQivTmsDa', {
             waitUntil: 'networkidle0',
@@ -36,6 +36,6 @@ export class askYuanbao extends BaseEngine {
     }
 
     async ask(question:SearchKeyword) {
-        return [await this.askQuestion(question.coreKeyword)];
+        return [await this.askOneQuestion(question.coreKeyword)];
     }
 }
