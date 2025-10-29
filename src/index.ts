@@ -24,7 +24,6 @@ declare global {
     //Launch browser
     globalThis.browser = await puppeteer.launch({
         headless: false,
-        executablePath: `C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe`,
         userDataDir: "./user-data",
     });
     puppeteer.use(StealthPlugin())
