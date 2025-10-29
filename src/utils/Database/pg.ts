@@ -3,9 +3,15 @@
  */
 //@ts-nocheck
 
-import {Pool} from "pg"
+import { Pool } from "pg";
 
-const pool = new Pool()
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT, 10),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+});
 
 export const query = async (text, params) => {
     const start = Date.now()

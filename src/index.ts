@@ -1,5 +1,13 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
 import {SearchKeyword} from "./question-list";
+
+
+// Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
+
+// Add adblocker plugin to block all ads and trackers (saves bandwidth)
+import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 
 declare global {
     var browser: import('puppeteer').Browser;
@@ -19,6 +27,8 @@ declare global {
         executablePath: `C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe`,
         userDataDir: "./user-data",
     });
+    puppeteer.use(StealthPlugin())
+    puppeteer.use(AdblockerPlugin({blockTrackers: true}))
 
     // Server
     await import('./utils/Database/server')

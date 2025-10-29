@@ -4,6 +4,7 @@
       <w>domcontentloaded</w>
       <w>doubao</w>
       <w>networkidle</w>
+      <w>postgre</w>
       <w>requestfinished</w>
       <w>testid</w>
     </words>
