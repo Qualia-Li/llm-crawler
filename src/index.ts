@@ -21,13 +21,15 @@ declare global {
     //Load saved data
     await import("./question-list")
 
+    //Register plugins before launching browser
+    puppeteer.use(StealthPlugin())
+    puppeteer.use(AdblockerPlugin({blockTrackers: true}))
+
     //Launch browser
     globalThis.browser = await puppeteer.launch({
         headless: false,
         userDataDir: "./user-data",
     });
-    puppeteer.use(StealthPlugin())
-    puppeteer.use(AdblockerPlugin({blockTrackers: true}))
 
     // Server
     await import('./utils/Database/server')
