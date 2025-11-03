@@ -2,6 +2,7 @@
 user-data
 results*.json
 .env
+.env.local
 
 
 #Logs
