@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, type Ref, ref, watch} from "vue";
 import ShowHide from "@/components/showHide.vue";
+import {marked} from "marked";
 
 interface SearchKeyword {
   // 核心词 (Core Keywords)
@@ -41,6 +42,7 @@ watch([offsetEnd, offsetStart], () => {
   id = getPage();
 })
 
+
 </script>
 
 <template>
@@ -72,7 +74,7 @@ watch([offsetEnd, offsetStart], () => {
           <div v-for="(html,engine) in item.platforms" :data-index="index">
             {{ engine }}:
             <show-hide :default="false">
-              <pre v-html="html"></pre>
+              <div v-html="marked.parse(html[0])" class="border-start border-2 ps-2 border-primary"></div>
             </show-hide>
           </div>
         </details>

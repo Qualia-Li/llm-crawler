@@ -1,5 +1,8 @@
 import fs from "node:fs";
 
+//regexp: window.*?;
+// \{\\\"initialData.*?\}\}\}
+
 const txt = fs.readFileSync("./result.json").toString("utf-8")
 /** @type string[] */
 let a = JSON.parse(txt)
@@ -11,7 +14,7 @@ a.forEach((b,idx,arr)=>{
         let newStr = ""
         d.split("\n").forEach(e=>{
             // console.log(e)
-            if(e === "window.\\_q\\_wl\\_sc\\_undefined = Date.now();"
+            if(e.includes("window.")
             || e.includes(".css.map")) {
                 console.log("replaced:  " + e.slice(0,20) + "...")
                 return
