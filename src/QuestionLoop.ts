@@ -60,7 +60,7 @@ export const QuestionLoop = async () => {
                 engines[plat as Engines].page.bringToFront()
             },Math.random() * 20)
             setTimeout(() => {
-                engines[plat as Engines].page.reload()
+                // engines[plat as Engines].page.reload()
             },Math.random() * 20)
         },45_000)
     }
