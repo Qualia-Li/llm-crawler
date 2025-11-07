@@ -56,11 +56,13 @@ export const QuestionLoop = async () => {
 
         //in case of freeze
         setInterval(()=>{
-            const extracted = () => {
+            setTimeout(() => {
                 engines[plat as Engines].page.bringToFront()
-            }
-            setTimeout(extracted,Math.random() * 20)
-        },20_000)
+            },Math.random() * 20)
+            setTimeout(() => {
+                engines[plat as Engines].page.reload()
+            },Math.random() * 20)
+        },45_000)
     }
 }
 
