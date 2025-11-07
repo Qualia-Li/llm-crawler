@@ -1,11 +1,10 @@
 import {BaseEngine} from "@/src/engines/base";
 import {Engines} from "@/src/engines/engines";
-import {SearchKeyword} from "@/src/question-list";
 
 export class askKimi extends BaseEngine {
     engineName: Engines = "kimi"
 
-    async ask(question: SearchKeyword) {
+    async ask(question: string) {
         // Navigate tpo kimi
         await this.page.goto('https://www.kimi.com/', {waitUntil: 'networkidle2'});
 
@@ -14,7 +13,7 @@ export class askKimi extends BaseEngine {
         await this.page.click(inputSelector);
 
         // Type question
-        await this.page.type(inputSelector, `${question.coreKeyword}`);
+        await this.page.type(inputSelector, `${question}`);
 
         // Press Enter
         await this.page.keyboard.press('Enter');
@@ -25,14 +24,12 @@ export class askKimi extends BaseEngine {
 
         // Get response
         const resEl = this.page.locator(".segment-container:has(.paragraph)");
-        let text = await resEl.map((el) => el.innerHTML).wait();
-
         //Refer
 /*        const links = this.page.locator(`.sites`)
         const referText = await links.map(link=>link.innerHTML).wait()
         text = `${text}\n\n\n <h2>References</h2>\n (${referText})`*/
 
         // Return
-        return [text]
+        return await resEl.map((el) => el.innerHTML).wait()
     }
 }

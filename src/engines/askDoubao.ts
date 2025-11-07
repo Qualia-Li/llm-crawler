@@ -1,15 +1,14 @@
 import {BaseEngine} from "./base";
-import {SearchKeyword} from "../question-list";
+ 
 import {Engines} from "./engines";
 
 export class askDoubao extends BaseEngine {
     engineName: Engines = "豆包";
 
-    async ask(question: SearchKeyword) {
+    async ask(question: string) {
         /* Quark do not support appending. */
-        return [
-            await this.askOne(question.coreKeyword),
-        ]
+        return             await this.askOne(question)
+
     }
 
     private async askOne(text: string) {

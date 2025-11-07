@@ -1,5 +1,4 @@
 import {Page} from "puppeteer";
-import {SearchKeyword} from "../question-list";
 import {Engines} from "./engines";
 
 export class BaseEngine {
@@ -23,8 +22,8 @@ export class BaseEngine {
         return this.ask
     }
 
-    async ask(_question: SearchKeyword) {
+    async ask(_question: string) {
         console.error("Not implemented");
-        return [""]
+        return ""
     }
 }

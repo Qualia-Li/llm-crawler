@@ -1,12 +1,12 @@
 import {BaseEngine} from "./base";
-import {SearchKeyword} from "../question-list";
+
 import {Engines} from "./engines";
 
 export class askDeepseek extends BaseEngine {
     engineName: Engines = "deepseek"
 
 
-    async ask(question: SearchKeyword) {
+    async ask(question: string) {
         /*this.page.on('requestfinished', (request) => {
             /!**https://chromedevtools.github.io/devtools-protocol/tot/Network/#method-streamResourceContent*!/
             if (request.isInterceptResolutionHandled()) return;
@@ -32,7 +32,7 @@ export class askDeepseek extends BaseEngine {
         await this.page.click("textarea",);
 
         // Type the message
-        await this.page.type("textarea", question.coreKeyword, {
+        await this.page.type("textarea", question, {
             delay: 100, // Add slight delay for more natural typing
         });
 
@@ -47,8 +47,6 @@ export class askDeepseek extends BaseEngine {
         );
 
         const resEl = this.page.locator("div.ds-markdown").setTimeout(500000);
-        const text = await resEl.map((el) => el.innerHTML).wait();
-
-        return [text]
+        return await resEl.map((el) => el.innerHTML).wait()
     }
 }

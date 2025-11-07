@@ -1,12 +1,12 @@
 import {BaseEngine} from "./base";
-import {SearchKeyword} from "../question-list";
+ 
 import {Engines} from "./engines";
 
 export class askErnie extends BaseEngine {
     engineName: Engines = "文心一言";
 
-    async ask(question: SearchKeyword) {
-        return [await this.askOne(question.coreKeyword)]
+    async ask(question: string) {
+        return await this.askOne(question)
     }
 
     private async askOne(text: string) {

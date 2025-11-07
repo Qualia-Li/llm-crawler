@@ -8,5 +8,19 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/ds_grub_dev</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name=" DATABASE_URL=&quot;postgres://postgres.xhfsrasresqqrrxwpsyn:OjE563r7k93pq3Su@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&quot; " uuid="25b0d83e-2db9-42d2-9de6-262ee1d0f35a">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgres://postgres.xhfsrasresqqrrxwpsyn:OjE563r7k93pq3Su@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&amp;supa=base-pooler.x</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="postgres@db.xhfsrasresqqrrxwpsyn.supabase.co" uuid="e122aa8b-e06c-4810-97bf-c4c0d2b92ec1">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://db.xhfsrasresqqrrxwpsyn.supabase.co:5432/postgres</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

@@ -1,14 +1,14 @@
 import {BaseEngine} from "./base";
-import {SearchKeyword} from "../question-list";
+ 
 import {Engines} from "./engines";
 
 export class askQuark extends BaseEngine {
     engineName: Engines = "夸克";
 
-    async ask(question: SearchKeyword) {
+    async ask(question: string) {
         /* Quark do not support appending. */
         const arr = [
-            await this.askOne(question.coreKeyword),
+            await this.askOne(question),
         ]
 
         //no need now
@@ -16,7 +16,7 @@ export class askQuark extends BaseEngine {
             arr.push(await this.askOne(extendedKeyword))
         }*/
 
-        return arr
+        return arr[0]
     }
 
     private async askOne(text: string) {
@@ -46,8 +46,12 @@ export class askQuark extends BaseEngine {
             // "div.sgs-common-paa > div > div.qk-view > div:nth-of-type(1) div.qk-text",
             // '[data-bar="Generated"]',
             ".qk-md-paragraph",
-            {timeout: 700000} // Note: timeout seems very high, maybe 70000 was intended?
+            {timeout: 70000}
         );
+
+        await this.page.evaluate(function (){
+            document.querySelectorAll("style,script").forEach(e=>e.remove())
+        })
 
         return await this.page
             .locator("#sgs-container")

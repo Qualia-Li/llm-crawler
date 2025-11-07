@@ -3,15 +3,28 @@
  */
 //@ts-nocheck
 
-import { Pool } from "pg";
+import {Pool} from "pg";
+import dotenv from "dotenv";
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT, 10),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
+dotenv.config({path: "../../../.env"})
+
+let pool: Pool
+
+if (process.env.DB_HOST) {
+    pool = new Pool({
+        host: process.env.DB_HOST,
+        port: parseInt(process.env.DB_PORT, 10),
+        database: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+    });
+} else {
+    pool = new Pool({
+        connectString: process.env.DATABASE_URL,
+        password: new URL(process.env.DATABASE_URL).password,
+        user: "postgres",
+    })
+}
 
 export const query = async (text, params) => {
     const start = Date.now()
@@ -45,3 +58,5 @@ export const getClient = async () => {
     }
     return client
 }
+
+console.log(await query("SELECT NOW()"))

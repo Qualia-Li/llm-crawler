@@ -20,7 +20,7 @@ a.forEach((b,idx,arr)=>{
                 return
             };
 
-            newStr += e
+            newStr += e + '\n'
             arr[idx].platforms["夸克"][0] = newStr
         })
         // console.log(newStr)

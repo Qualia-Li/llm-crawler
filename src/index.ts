@@ -8,6 +8,7 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 // Add adblocker plugin to block all ads and trackers (saves bandwidth)
 import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
+import {save} from "@/src/utils/save";
 
 declare global {
     var browser: import('puppeteer').Browser;
@@ -23,12 +24,13 @@ declare global {
 
     //Register plugins before launching browser
     puppeteer.use(StealthPlugin())
-    puppeteer.use(AdblockerPlugin({blockTrackers: true}))
+    //puppeteer.use(AdblockerPlugin({blockTrackers: true}))
 
     //Launch browser
     globalThis.browser = await puppeteer.launch({
         headless: false,
         userDataDir: "./user-data",
+        executablePath:"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
     });
 
     // Server
@@ -39,4 +41,10 @@ declare global {
     //Question Loop
     const {QuestionLoop} = await import("./QuestionLoop")
     await QuestionLoop();
+
+    //auto save
+    setInterval(function ()
+    {
+        save()
+    },15000)
 }
