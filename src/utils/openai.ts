@@ -56,6 +56,7 @@ Return format: ["Brand1", "Brand2", "Brand3"]`;
 
         return brands.filter((b: any) => typeof b === 'string' && b.length > 0);
     } catch (error) {
+        // @ts-ignore
         console.error('Error extracting brands:', error.message);
         return [];
     }

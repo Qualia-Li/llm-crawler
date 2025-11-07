@@ -10,7 +10,7 @@ export interface SearchKeyword {
     extendedKeywords: string[];
 
     // 平台 (Platforms)
-    platforms: Map<Engines, string[]>;
+    platforms: { [key in Engines]: string[] };
 
     // 品牌名 (Brand Names)
     brandNames: string;
@@ -29,7 +29,8 @@ function parasCSV() {
                 list.push({
                     coreKeyword: tmpBrandName,
                     extendedKeywords: [row[1]],
-                    platforms: new Map(row[2].split("，").map(val => ([val as Engines, []]))),
+                    // @ts-ignore
+                    platforms: Object.fromEntries(row[2].split("，").map(val => ([val, []]))),
                     brandNames: row[3],
                 });
             } else {
@@ -46,7 +47,7 @@ if (fs.existsSync(".//data/result.json")/*  && false*/) {
     //@ts-ignore
     questionList = JSON.parse(fs.readFileSync('./data/result.json', 'utf8'))
     for(let q of questionList){
-        q.platforms = new Map(Object.entries(q.platforms)) as SearchKeyword["platforms"]
+        q.platforms = Object.fromEntries(Object.entries(q.platforms)) as SearchKeyword["platforms"];
     }
     // console.log(questionList);
     console.log("Question list loaded from result.json")

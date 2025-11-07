@@ -1,53 +1,47 @@
-import {engines} from "./engines/engines";
-import {BaseEngine} from "./engines/base";
-
+import {engines, Engines} from "@/src/engines/engines";
 import {save} from "@/src/utils/save";
-import {toMD} from "@/src/utils/markdown";
 
-export async function QuestionLoop() {
-    // Each question
-    for (const question of global.questionList) {
-        const promises = []
-        // Each engine
-        console.log(`--------------\nQuestion:${question.coreKeyword}`)
-        for (const plat of Array.from(question.platforms.keys())) {
-            try {
-                const finished = (question.platforms.get(plat)?.length || 0) >= question.extendedKeywords.length;
-                console.log(`${plat} ${finished ? `OK` : `Processing`}`)
-                if (finished) continue
 
-                let engine = engines[plat] as BaseEngine
-                if (!engine) continue;
-                let res = (async () => {
-                    let a = ({
-                        text: [!(question.platforms.get(plat)?.length) ? (await engine.ask(question.coreKeyword).catch(console.error)) : question.platforms.get(plat)![0]],
-                        plat: plat
-                    })
-                    for (const q of question.extendedKeywords) {
-                        const index = question.extendedKeywords.indexOf(q);
-                        if (!((question.platforms.get(plat)?.length || 1) >= index + 1)) {
-                            a.text.push((await engine.ask(q)
-                                    .catch(console.error)
-                            ))
-                        } else {
-                            a.text.push(question.platforms.get(plat)![index])
-                        }
-                    }
-                    return a;
-                })()
-                promises.push(res);
-            } catch (err) {
-                console.log(plat)
-                console.error(err)
+let tasks: { [key in Engines]: string[] } = {
+    deepseek: [],
+    豆包: [],
+    元宝: [],
+    文心一言: [],
+    夸克: [],
+    kimi: [],
+};
+
+const mapQuestionsToTasks = () => {
+    for (const question of questionList) {
+        for (const plat in question.platforms) {
+            if (question.platforms[plat as Engines].length == 0) {
+                tasks[plat as Engines].push(question.coreKeyword)
             }
+            question.extendedKeywords.forEach((value,index)=>{
+                // -1 to delete coreKeyword
+                if (question.platforms[plat as Engines].length - 1 < index + 1) {
+                    tasks[plat as Engines].push(value)
+                }
+            })
         }
-        let result = await Promise.all(promises)
-        result?.forEach(function (value) {
-            question.platforms.set(value.plat, value.text.map(toMD))
-        })
-        // console.log(question.platforms)
-
-        //Save
-        save()
     }
 }
+
+export const QuestionLoop = async () => {
+    mapQuestionsToTasks();
+    //console.log(tasks)
+
+    for (const plat in engines) {
+        await (async () => {
+            for (const text of tasks[plat as Engines]) {
+                const res = await engines[plat as Engines].ask(text);
+                tasks[plat as Engines].push(res)
+                questionList.forEach(function (v) {
+                    if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat as Engines].push(res)
+                })
+                save()
+            }
+        })();
+    }
+}
+

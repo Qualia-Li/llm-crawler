@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "run": "tsx watch src/index.ts",
+    "run": "tsx src/index.ts",
     "result:dev": "cd src/resultView && pnpm run dev",
     "result:build": "cd src/resultView && pnpm run build"
   },

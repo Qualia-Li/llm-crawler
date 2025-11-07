@@ -5,9 +5,6 @@ import {SearchKeyword} from "./question-list";
 // Add stealth plugin and use defaults (all tricks to hide puppeteer usage)
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
-
-// Add adblocker plugin to block all ads and trackers (saves bandwidth)
-import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 import {save} from "@/src/utils/save";
 
 declare global {
@@ -38,13 +35,15 @@ declare global {
     //const resultPage = await browser.newPage();
     //resultPage.goto("http://localhost:8080",{timeout:0})
 
-    //Question Loop
-    const {QuestionLoop} = await import("./QuestionLoop")
-    await QuestionLoop();
-
     //auto save
     setInterval(function ()
     {
         save()
     },15000)
+
+    //Question Loop
+    const {QuestionLoop} = await import("./QuestionLoop")
+    await QuestionLoop();
+
+
 }
