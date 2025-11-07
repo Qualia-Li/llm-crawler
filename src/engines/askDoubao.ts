@@ -34,7 +34,7 @@ export class askDoubao extends BaseEngine {
             "[data-testid=\"message_action_like\"] svg", {timeout: 50_0000});
 
         return await this.page
-            .locator("[data-testid=\"message_content\"]:has(div > div)")
+            .locator("[data-testid=\"message_content\"]:has(*:not(div))")
             .map((el) => el.innerHTML)
             .wait();
     }

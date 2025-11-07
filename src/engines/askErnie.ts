@@ -1,5 +1,5 @@
 import {BaseEngine} from "./base";
- 
+
 import {Engines} from "./engines";
 
 export class askErnie extends BaseEngine {
@@ -21,8 +21,11 @@ export class askErnie extends BaseEngine {
         //open reference
         await this.page.click(".thinking-steps-title-extra")
 
+        this.page.waitForSelector(`[class*="cos-icon-copy icon"]`, {timeout: 30_000})//so fast Erine
+
+
         return await this.page
-            .locator(`[class*="cos-icon-copy icon"]`)
+            .locator(".marklang")
             .map((el) => el.innerHTML)
             .wait();
     }
