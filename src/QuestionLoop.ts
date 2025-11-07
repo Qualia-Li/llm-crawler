@@ -34,7 +34,7 @@ const perEngine = async (plat: string) => {
         await engines[plat as Engines].page.bringToFront();
         const res = toMD(await engines[plat as Engines].ask(text)
             .catch(function (e) {
-                throw new Error(e)
+                console.error(e)
             }))
         tasks[plat as Engines].push(res)
         questionList.forEach(function (v) {
