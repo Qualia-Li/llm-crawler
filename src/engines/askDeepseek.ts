@@ -5,20 +5,7 @@ import {Engines} from "./engines";
 export class askDeepseek extends BaseEngine {
     engineName: Engines = "deepseek"
 
-
     async ask(question: string) {
-        /*this.page.on('requestfinished', (request) => {
-            /!**https://chromedevtools.github.io/devtools-protocol/tot/Network/#method-streamResourceContent*!/
-            if (request.isInterceptResolutionHandled()) return;
-            const url = request.url();
-            console.log("url")
-            if (url === 'https://chat.deepseek.com/api/v0/chat/completion') {
-                //console.log(request.response()?.content())
-            }
-            // request.continue();
-        });*/
-
-
         // Navigate to the URL
         await this.page
             .goto(

@@ -23,7 +23,7 @@ export class BaseEngine {
     }
 
     async ask(_question: string) {
-        console.error("Not implemented");
+        await this.page.bringToFront()
         return ""
     }
 }
