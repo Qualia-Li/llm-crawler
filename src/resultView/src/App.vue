@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {computed, type Ref, ref, watch} from "vue";
+import {type Ref, ref, watch} from "vue";
 import ShowHide from "@/components/showHide.vue";
-import {marked} from "marked";
+import Keywords from "@/Keywords.vue";
 
 interface SearchKeyword {
   // 核心词 (Core Keywords)
@@ -17,7 +17,7 @@ interface SearchKeyword {
   brandNames: string;
 }
 
-const offsetEnd = ref(10)
+const offsetEnd = ref(100)
 const offsetStart = ref(0)
 const data: Ref<SearchKeyword[]> = ref([]);
 
@@ -26,12 +26,12 @@ const offset = ref(offsetStart.value)
 const getPage = () => {
   const id = setInterval(async function () {
     const text = await (await fetch(`http://localhost:8080?offset=${offset.value}`)).text()
-    console.log(text)
+    // console.log(text)
     offset.value++
     if (text === "no more" || offset.value > offsetEnd.value) clearInterval(id)
     else data.value.push(JSON.parse(text));
 
-  }, 100);
+  }, 10);
   return id
 }
 let id = getPage();
@@ -74,7 +74,7 @@ watch([offsetEnd, offsetStart], () => {
           <div v-for="(html,engine) in item.platforms" :data-index="index">
             {{ engine }}:
             <show-hide :default="false">
-              <div v-html="marked.parse(html[0])" class="border-start border-2 ps-2 border-primary"></div>
+              <keywords :html="html"/>
             </show-hide>
           </div>
         </details>
