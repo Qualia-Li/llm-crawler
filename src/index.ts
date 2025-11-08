@@ -27,6 +27,7 @@ declare global {
     globalThis.browser = await puppeteer.launch({
         headless: false,
         userDataDir: "./user-data",
+        //modify
         executablePath:"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
     });
 

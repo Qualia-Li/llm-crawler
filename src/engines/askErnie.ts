@@ -5,11 +5,8 @@ import {Engines} from "./engines";
 export class askErnie extends BaseEngine {
     engineName: Engines = "文心一言";
 
-    async ask(question: string) {
-        return await this.askOne(question)
-    }
 
-    private async askOne(text: string) {
+    async ask(text: string) {
         // Navigate to the chat URL (a finished chat)
         await this.page.goto(`https://chat.baidu.com/search?word=${encodeURIComponent(text)}`, {
             waitUntil: 'networkidle0',

@@ -5,21 +5,7 @@ import {Engines} from "./engines";
 export class askQuark extends BaseEngine {
     engineName: Engines = "夸克";
 
-    async ask(question: string) {
-        /* Quark do not support appending. */
-        const arr = [
-            await this.askOne(question),
-        ]
-
-        //no need now
-        /*for (const extendedKeyword of question.extendedKeywords) {
-            arr.push(await this.askOne(extendedKeyword))
-        }*/
-
-        return arr[0]
-    }
-
-    private async askOne(text: string) {
+    async ask(text: string) {
         // Navigate to the page
         await this.page.goto("https://ai.quark.cn/", {waitUntil: "networkidle0"});
 

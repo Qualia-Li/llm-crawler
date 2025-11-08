@@ -5,13 +5,7 @@ import {Engines} from "./engines";
 export class askDoubao extends BaseEngine {
     engineName: Engines = "豆包";
 
-    async ask(question: string) {
-        /* Quark do not support appending. */
-        return             await this.askOne(question)
-
-    }
-
-    private async askOne(text: string) {
+    async ask(text: string) {
         // Navigate to Doubao
         await this.page.goto('https://www.doubao.com/chat/', {waitUntil: 'networkidle2'});
 

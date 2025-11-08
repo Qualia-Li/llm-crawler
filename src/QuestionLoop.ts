@@ -1,6 +1,7 @@
 import {engines, Engines} from "@/src/engines/engines";
 import {save} from "@/src/utils/save";
 import {toMD} from "@/src/utils/markdown";
+import {myStealth} from "@/src/engines/myStealth";
 
 
 let tasks: { [key in Engines]: string[] } = {
@@ -60,9 +61,9 @@ export const QuestionLoop = async () => {
                 engines[plat as Engines].page.bringToFront()
             },Math.random() * 20)
             setTimeout(() => {
-                // engines[plat as Engines].page.reload()
+                engines[plat as Engines].page.evaluate(myStealth)
             },Math.random() * 20)
-        },45_000)
+        },20_000)
     }
 }
 
