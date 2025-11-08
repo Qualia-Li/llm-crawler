@@ -43,7 +43,7 @@ const perEngine = async (plat: Engines) => {
         questionList.forEach(function (v) {
             if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat].push(res)
         })
-        save()
+        await save() // await no need
     }
 }
 export const QuestionLoop = async () => {

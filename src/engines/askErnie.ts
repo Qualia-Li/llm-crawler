@@ -18,7 +18,7 @@ export class askErnie extends BaseEngine {
         //open reference
         await this.page.click(".thinking-steps-title-extra")
 
-        this.page.waitForSelector(`[class*="cos-icon-copy icon"]`, {timeout: 30_000})//so fast Erine
+        await this.page.waitForSelector(`[class*="cos-icon-copy icon"]`, {timeout: 30_000})//so fast Erine
 
 
         return await this.page

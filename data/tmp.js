@@ -18,7 +18,7 @@ a.forEach((b,idx,arr)=>{
             || e.includes(".css.map")) {
                 console.log("replaced:  " + e.slice(0,20) + "...")
                 return
-            };
+            }
 
             newStr += e + '\n'
             arr[idx].platforms["夸克"][0] = newStr

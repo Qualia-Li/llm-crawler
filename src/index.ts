@@ -12,7 +12,7 @@ declare global {
 }
 
 //Main
-const  main=async  ()=>{
+const main = async () => {
     //Load env
     await import("dotenv/config")
     //Load saved data
@@ -26,8 +26,7 @@ const  main=async  ()=>{
     globalThis.browser = await puppeteer.launch({
         headless: false,
         userDataDir: "./user-data",
-        //modify
-        executablePath:"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        executablePath: process.env.BROWSER_PATH,//ok to be undefined
     });
 
     // Server
@@ -36,18 +35,18 @@ const  main=async  ()=>{
     //resultPage.goto("http://localhost:8080",{timeout:0})
 
     //auto save
-    setInterval(function ()
-    {
+    setInterval(function () {
         save()
-    },15000)
+    }, 15000)
 
     //Question Loop
     const {QuestionLoop} = await import("./QuestionLoop")
     await QuestionLoop();
 }
 
-const retry =  async () =>{
-    console.log("Retried")
-   await main().catch(retry).finally(retry)
+const retry = async (e = "Start" as any) => {
+    console.log("Retried 'cause the err below:")
+    console.error(e)
+    await main().catch(retry)
 }
 await retry()
