@@ -1,7 +1,7 @@
 export function myStealth() {
     Array.from(document.querySelectorAll("*"))
         .map((el:Element)=>el.scroll({
-        top: 50000,
+        top: 500*Math.random(),
         left: 50000,
         behavior: 'smooth'
     }))

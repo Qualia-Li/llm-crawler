@@ -15,32 +15,33 @@ let tasks: { [key in Engines]: string[] } = {
 
 const mapQuestionsToTasks = () => {
     for (const question of questionList) {
-        for (const plat in question.platforms) {
-            if (question.platforms[plat as Engines].length == 0) {
-                tasks[plat as Engines].push(question.coreKeyword)
+        for (const platformsKey in question.platforms) {
+            const plat = platformsKey as Engines
+            if (question.platforms[plat].length == 0) {
+                tasks[plat].push(question.coreKeyword)
             }
             question.extendedKeywords.forEach((value, index) => {
                 // -1 to delete coreKeyword
-                if (question.platforms[plat as Engines].length - 1 < index + 1) {
-                    tasks[plat as Engines].push(value)
+                if (question.platforms[plat].length - 1 < index + 1) {
+                    tasks[plat].push(value)
                 }
             })
         }
     }
 }
 
-const perEngine = async (plat: string) => {
-    for (const text of tasks[plat as Engines]) {
+const perEngine = async (plat: Engines) => {
+    for (const text of tasks[plat]) {
         // console.log(`Engine:${plat}`)
-        await engines[plat as Engines].page.bringToFront();
-        const res = toMD(await engines[plat as Engines].ask(text)
+        await engines[plat].page.bringToFront();
+        const res = toMD(await engines[plat].ask(text)
             .catch(function (e) {
-                console.log("Error "+plat)
+                console.log("Error " + plat)
                 console.error(e)
             }))
-        tasks[plat as Engines].push(res)
+        tasks[plat].push(res)
         questionList.forEach(function (v) {
-            if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat as Engines].push(res)
+            if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat].push(res)
         })
         save()
     }
@@ -49,22 +50,25 @@ export const QuestionLoop = async () => {
     mapQuestionsToTasks();
     //console.log(tasks)
 
-    for (const plat in engines) {
+    for (const platformsKey in engines) {
         /*await */ //no await as we'd like it to run parallelly
+        const plat = platformsKey as Engines
         perEngine(plat).catch(e => {
             console.error(`Engine:${plat} Error`)
             console.error(e)
         });
 
         //in case of freeze
-        setInterval(()=>{
+        setInterval(() => {
             setTimeout(() => {
-                engines[plat as Engines].page.bringToFront()
-            },Math.random() * 20)
-            setTimeout(() => {
-                engines[plat as Engines].page.evaluate(myStealth)
-            },Math.random() * 20)
-        },20_000)
+                engines[plat].page.bringToFront()
+            }, Math.random() * 20)
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    engines[plat].page.evaluate(myStealth)
+                }, Math.random() * 20)
+            }
+        }, 20_000)
     }
 }
 

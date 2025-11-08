@@ -8,8 +8,7 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import {save} from "@/src/utils/save";
 
 declare global {
-    var browser: import('puppeteer').Browser;
-    var questionList: SearchKeyword[];
+    var browser: import('puppeteer').Browser, questionList: SearchKeyword[];
 }
 
 //Main
@@ -45,12 +44,10 @@ const  main=async  ()=>{
     //Question Loop
     const {QuestionLoop} = await import("./QuestionLoop")
     await QuestionLoop();
-
-
 }
 
 const retry =  async () =>{
+    console.log("Retried")
    await main().catch(retry).finally(retry)
 }
 await retry()
-await  main()
