@@ -45,7 +45,7 @@ const main = async () => {
 }
 
 const retry = async (e = "Start" as any) => {
-    console.log("Retried 'cause the err below:")
+    console.log("Retried because of the err below:")
     console.error(e)
     await main().catch(retry)
 }
