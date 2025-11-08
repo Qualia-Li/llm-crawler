@@ -31,10 +31,11 @@ const mapQuestionsToTasks = () => {
 
 const perEngine = async (plat: string) => {
     for (const text of tasks[plat as Engines]) {
-        console.log(`Engine:${plat}`)
+        // console.log(`Engine:${plat}`)
         await engines[plat as Engines].page.bringToFront();
         const res = toMD(await engines[plat as Engines].ask(text)
             .catch(function (e) {
+                console.log("Error "+plat)
                 console.error(e)
             }))
         tasks[plat as Engines].push(res)

@@ -13,7 +13,7 @@ declare global {
 }
 
 //Main
-async function main(){
+const  main=async  ()=>{
     //Load env
     await import("dotenv/config")
     //Load saved data
@@ -49,7 +49,8 @@ async function main(){
 
 }
 
-function retry() {
-    main().catch(retry).finally(retry)
+const retry =  async () =>{
+   await main().catch(retry).finally(retry)
 }
-retry()
+await retry()
+await  main()
