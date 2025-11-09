@@ -22,7 +22,7 @@
     "dotenv": "latest",
     "openai": "^6.7.0",
     "pg": "latest",
-    "puppeteer": "^24.23.0",
+    "puppeteer": "latest",
     "puppeteer-extra": "latest",
     "puppeteer-extra-plugin-adblocker": "latest",
     "puppeteer-extra-plugin-stealth": "latest",

@@ -12,8 +12,8 @@ export class askYuanbao extends BaseEngine {
      */
     async ask(question: string): Promise<string> {
         // Navigate to the chat URL
-        await this.page.goto('https://yuanbao.tencent.com/chat/naQivTmsDa', {
-            waitUntil: 'networkidle0',
+        await this.page.goto('https://yuanbao.tencent.com/chat', {
+            waitUntil: 'domcontentloaded',
         });
 
         // Type the question into the input area
@@ -21,12 +21,25 @@ export class askYuanbao extends BaseEngine {
         await this.page.type(inputSelector, question);
 
         // Press Enter and wait for response
-        const waitAnswer = this.page.waitForNavigation({waitUntil: 'networkidle0', timeout: 500_000});
-        await this.page.keyboard.press('Enter');
-        await waitAnswer;
+        await Promise.all([
+            this.page.keyboard.press('Enter'),
+            this.page.waitForNavigation({waitUntil: 'networkidle0', timeout: 500_000})
+        ]);
 
         // Wait for the like button (indicator that response loaded)
         await this.page.waitForSelector('.agent-chat__toolbar__suitable', {timeout: 50_0000});
+/*        const refBtn = await this.page.$(".agent-chat__toolbar__item.agent-chat__search-guid-tool")
+        refBtn?.asLocator().click();
+        const ref = await this.page.$(".agent-dialogue-references__list")
+        const refHTML =  await  ref?.asLocator().map((el) => el.innerHTML)
+            .wait();
+
+        (await this.page.$$(".hyc-common-markdown__ref-list__item")).map(el=>el.hover())
+        const a = await this.page.$$(".hyc-common-markdown__ref_card")
+        const b =await Promise.all( a.map(async el => {
+            await el.hover();
+            return await el.asLocator().map((el) => el.innerHTML).wait()
+        }))*/
 
         // Return the HTML content of the AI's message
         return await this.page

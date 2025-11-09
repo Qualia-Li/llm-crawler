@@ -24,10 +24,11 @@ export class askQuark extends BaseEngine {
         // Send message
         //await this.page.keyboard.press("Enter");
         const waitAnswer = this.page.waitForNavigation({waitUntil: "networkidle0", timeout: 500000}); // Note: timeout seems very high, maybe 50000 was intended?
-        await this.page.locator(`.search-bar-container-inner-btn`).click();
-
+        await Promise.all([
+            this.page.locator(`.search-bar-container-inner-btn`).click(),
+            waitAnswer
+        ]);
         // Wait for the search results to load
-        await waitAnswer;
         await this.page.waitForSelector(
             // "div.sgs-common-paa > div > div.qk-view > div:nth-of-type(1) div.qk-text",
             // '[data-bar="Generated"]',

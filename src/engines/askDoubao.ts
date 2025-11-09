@@ -20,10 +20,12 @@ export class askDoubao extends BaseEngine {
 
         // Press Enter
         const waitAnswer = this.page.waitForNavigation({waitUntil: "networkidle0", timeout: 500000});
-        await this.page.keyboard.press('Enter');
+        await Promise.all([
+            this.page.keyboard.press('Enter'),
+            waitAnswer
+        ]);
 
         // Wait for the search results to load
-        await waitAnswer;
         await this.page.waitForSelector(
             "[data-testid=\"message_action_like\"] svg", {timeout: 50_0000});
 

@@ -1,7 +1,7 @@
 import {engines, Engines} from "@/src/engines/engines";
 import {save} from "@/src/utils/save";
-import {toMD} from "@/src/utils/markdown";
 import {myStealth} from "@/src/engines/myStealth";
+import {toMD} from "@/src/utils/markdown";
 
 
 let tasks: { [key in Engines]: string[] } = {
@@ -34,11 +34,11 @@ const perEngine = async (plat: Engines) => {
     for (const text of tasks[plat]) {
         // console.log(`Engine:${plat}`)
         await engines[plat].page.bringToFront();
-        const res = toMD(await engines[plat].ask(text)
+        const res = toMD(  await engines[plat].ask(text)
             .catch(function (e) {
                 console.log("Error " + plat)
                 console.error(e)
-            }))
+            }) || "")
         tasks[plat].push(res)
         questionList.forEach(function (v) {
             if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat].push(res)

@@ -18,8 +18,8 @@ export const engines:{
 } = {
     deepseek:await getEngine(askDeepseek),
     豆包: await getEngine(askDoubao),
-    // 元宝: await getEngine(askYuanbao),
-    //文心一言: await getEngine(askErnie),
+    元宝: await getEngine(askYuanbao),
+    文心一言: await getEngine(askErnie),
     夸克: await getEngine(askQuark),
     kimi: await getEngine(askKimi),
 };
