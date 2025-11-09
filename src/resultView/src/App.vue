@@ -111,11 +111,19 @@ a::after {
 }
 
 summary {
-  position: relative;
+  position: sticky;
+  top: 0;
+  background: var(--bs-body-bg);
 }
 
 details {
   display: block;
   width: min(1280px, 80vw);
+}
+</style>
+<style>
+img{
+  width: 50px;
+  aspect-ratio: auto;
 }
 </style>

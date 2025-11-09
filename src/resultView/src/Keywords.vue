@@ -1,13 +1,14 @@
 <template>
-  <div class="input-group">
-    <input type="range" :max="html.length" min="0" v-model="num" class="form-control form-range w-50">
+  <div class="input-group w-100">
+    <label class="form-check input-group-text">Extended No.</label>
+    <input type="range" :max="html.length" min="0" v-model="num" class="form-control"/>
     <label class="form-check input-group-text">paras markdown</label>
     <div class="input-group-text">
-    <input type="checkbox" v-model="mark"
-           class="form-check-input form-control"></div>
+      <input type="checkbox" v-model="mark"
+             class="form-check-input form-control"></div></div>
     <div v-html="mark?marked.parse(html[num - 1]):html[num - 1]"
          class="border-start border-2 ps-2 border-primary"></div>
-  </div>
+
 </template>
 <script setup>
 import {defineProps, ref} from "vue";
