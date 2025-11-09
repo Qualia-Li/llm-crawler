@@ -34,7 +34,7 @@ const perEngine = async (plat: Engines) => {
     for (const text of tasks[plat]) {
         // console.log(`Engine:${plat}`)
         await engines[plat].page.bringToFront();
-        const res = toMD(  await engines[plat].ask(text)
+        const res = toMD(await engines[plat].ask(text)
             .catch(function (e) {
                 console.log("Error " + plat)
                 console.error(e)
@@ -59,6 +59,7 @@ export const QuestionLoop = async () => {
         });
 
         //in case of freeze
+        // cause context break?
         setInterval(() => {
             setTimeout(() => {
                 engines[plat].page.bringToFront()
@@ -67,8 +68,10 @@ export const QuestionLoop = async () => {
         }, 20_000);
         for (let i = 0; i < 10; i++) {
             setInterval(() => {
-                engines[plat].page.evaluate(myStealth)
-            }, Math.random() * 20)
+                setTimeout(() => {
+                    engines[plat].page.evaluate(myStealth)
+                }, Math.random() * 20)
+            }, 20_000)
         }
     }
 }
