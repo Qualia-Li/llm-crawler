@@ -63,12 +63,13 @@ export const QuestionLoop = async () => {
             setTimeout(() => {
                 engines[plat].page.bringToFront()
             }, Math.random() * 20)
-            for (let i = 0; i < 10; i++) {
-                setTimeout(() => {
-                    engines[plat].page.evaluate(myStealth)
-                }, Math.random() * 20)
-            }
-        }, 20_000)
+
+        }, 20_000);
+        for (let i = 0; i < 10; i++) {
+            setInterval(() => {
+                engines[plat].page.evaluate(myStealth)
+            }, Math.random() * 20)
+        }
     }
 }
 
