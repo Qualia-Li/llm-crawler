@@ -2,6 +2,7 @@
 import {type Ref, ref, watch} from "vue";
 import ShowHide from "@/components/showHide.vue";
 import Keywords from "@/Keywords.vue";
+import DarkTheme from "@/DarkTheme.vue";
 
 interface SearchKeyword {
   // 核心词 (Core Keywords)
@@ -31,7 +32,7 @@ const getPage = () => {
     if (text === "no more" || offset.value > offsetEnd.value) clearInterval(id)
     else data.value.push(JSON.parse(text));
 
-  }, 10);
+  }, 100);
   return id
 }
 let id = getPage();
@@ -51,30 +52,23 @@ watch([offsetEnd, offsetStart], () => {
     <input name="start" type="number" class="form-control" v-model="offsetStart"/>
     <label for="end" class="input-group-text">End:</label>
     <input name="end" type="number" class="form-control" v-model="offsetEnd"/>
+    <dark-theme/>
   </div>
   <br>
   <ol>
     <TransitionGroup name="slide-in-top">
       <li v-for="(item,index) of data" :key="item.coreKeyword" class="item">
-        <details><
-          <summary>{{ item.coreKeyword }}
+        <details class="w-100"><
+          <summary class="shadow-lg w-100 border-bottom border-3 border-primary">{{ item.coreKeyword }}
             <span class="finished" v-for="(_html,engine) in item.platforms">
-              <span v-if="_html?.length">  {{ engine }}</span>
-          </span>
+              <span v-if="_html?.length">{{ engine }}</span>
+            </span>
           </summary>
-          <h2>Extended</h2>
-          <show-hide :default="false">
-            <ul>
-              <li class="extended" v-for="word in item.extendedKeywords">
-                {{ word }}
-              </li>
-            </ul>
-          </show-hide>
           <br><br>
           <div v-for="(html,engine) in item.platforms" :data-index="index">
             {{ engine }}:
             <show-hide :default="false">
-              <keywords :html="html"/>
+              <keywords :html="html" :q="item.extendedKeywords.concat(item.coreKeyword)"/>
             </show-hide>
           </div>
         </details>
@@ -94,26 +88,23 @@ a::after {
 }
 
 .item {
-  border: solid 1px;
-  border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
 }
-
-.extended {
-  color: beige;
-}
-
 .finished {
   color: coral;
   float: right;
-  margin: 0 5px ;
+  margin: 0 5px;
 }
 
 summary {
   position: sticky;
   top: 0;
-  background: var(--bs-body-bg);
+  background: color-mix(var(--bs-body-bg), transparent);
+  padding: 1rem;
+  backdrop-filter: blur(5px);
+  z-index: 3;
+  margin: -10px;
 }
 
 details {
@@ -122,7 +113,7 @@ details {
 }
 </style>
 <style>
-img{
+img {
   width: 50px;
   aspect-ratio: auto;
 }

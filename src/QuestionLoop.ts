@@ -34,14 +34,15 @@ const perEngine = async (plat: Engines) => {
     for (const text of tasks[plat]) {
         // console.log(`Engine:${plat}`)
         await engines[plat].page.bringToFront();
-        const res = toMD(await engines[plat].ask(text)
+        const res = await engines[plat].ask(text)
             .catch(function (e) {
                 console.log("Error " + plat)
                 console.error(e)
-            }) || "")
-        tasks[plat].push(res)
+            });
+        const md = toMD(res || "")
+        tasks[plat].push(md)
         questionList.forEach(function (v) {
-            if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat].push(res)
+            if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat].push(md)
         })
         await save() // await no need
     }
@@ -60,18 +61,20 @@ export const QuestionLoop = async () => {
 
         //in case of freeze
         // cause context break?
-        setInterval(() => {
-            setTimeout(() => {
-                engines[plat].page.bringToFront()
-            }, Math.random() * 20)
-
-        }, 20_000);
-        for (let i = 0; i < 10; i++) {
+        {
             setInterval(() => {
                 setTimeout(() => {
-                    engines[plat].page.evaluate(myStealth)
+                    engines[plat].page.bringToFront()
                 }, Math.random() * 20)
-            }, 20_000)
+
+            }, 20_000);
+            for (let i = 0; i < 10; i++) {
+                setInterval(() => {
+                    setTimeout(() => {
+                        engines[plat].page.evaluate(myStealth)
+                    }, Math.random() * 20)
+                }, 20_000)
+            }
         }
     }
 }

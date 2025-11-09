@@ -8,9 +8,9 @@ const show = ref(props.default)
 </script>
 
 <template>
-  <label class="form-check form-check-label">
+  <label class="form-check form-check-label d-inline">
     <input type="checkbox" v-model="show" class="form-check-input"/>
-    show
+
   </label>
   <slot v-if="show"></slot>
 </template>

@@ -1,3 +1,7 @@
 #app{
     padding: 10vw;
 }
+
+*{
+    --bs-bg-opacity: .5;
+}
