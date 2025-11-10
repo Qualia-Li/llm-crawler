@@ -39,19 +39,24 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Replace \\_ with _'
             },
             {
-                pattern: / \* /g,
-                replacement: '\n * ',
-                description: 'Replace " * " with "\\n * " (add newline before bullet points)'
+                pattern: /：\s+\*\s+\*\*/g,
+                replacement: '：\n  * **',
+                description: 'Add newline and indentation for nested bullets after colon (： * **)'
             },
             {
-                pattern: /(###[^\n]+[^ \n]) /g,
+                pattern: /([^\n])\s\*\s+(?!\*)/g,
+                replacement: '$1\n * ',
+                description: 'Add newline before bullets (but not if already indented or part of bold)'
+            },
+            {
+                pattern: /(###[^\n]+[^ \n])\s+/g,
                 replacement: '$1\n',
                 description: 'Add newline after ### headings'
             },
             {
-                pattern: /\s{2,}/g,
-                replacement: ' ',
-                description: 'Replace multiple spaces with single space'
+                pattern: /\n{3,}/g,
+                replacement: '\n\n',
+                description: 'Replace 3+ newlines with double newline'
             }
         ]
     },
