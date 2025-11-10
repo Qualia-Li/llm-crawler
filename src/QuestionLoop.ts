@@ -60,20 +60,20 @@ export const QuestionLoop = async () => {
         });
 
         //in case of freeze
-        // cause context break?
+        // cause context break
         {
             setInterval(() => {
                 setTimeout(() => {
-                    engines[plat].page.bringToFront()
+                    engines[plat].page.bringToFront().catch()
                 }, Math.random() * 20)
 
             }, 20_000);
             for (let i = 0; i < 10; i++) {
                 setInterval(() => {
                     setTimeout(() => {
-                        engines[plat].page.evaluate(myStealth)
+                        engines[plat].page.evaluate(myStealth).catch()
                     }, Math.random() * 20)
-                }, 20_000)
+                }, 8_000)
             }
         }
     }
