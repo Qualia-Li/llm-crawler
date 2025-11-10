@@ -109,6 +109,51 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Replace multiple newlines with double newline'
             }
         ]
+    },
+    {
+        platform: '夸克',
+        rules: [
+            {
+                pattern: /检索到\d+篇搜索来源[\s\S]*?!\[收起\]\(https:\/\/cdn\.sm\.cn\/static\/25\/02\/17\/[a-f0-9]+\.png\)/g,
+                replacement: '',
+                description: 'Remove search metadata block (from "检索到XX篇搜索来源..." to "![收起]" image)'
+            },
+            {
+                pattern: /\n{3,}/g,
+                replacement: '\n\n',
+                description: 'Replace multiple newlines with double newline'
+            }
+        ]
+    },
+    {
+        platform: '元宝',
+        rules: [
+            {
+                pattern: /\u200b/g,
+                replacement: '',
+                description: 'Remove zero-width space characters (U+200B)'
+            },
+            {
+                pattern: /(\d+)\.\s+\1\./g,
+                replacement: '$1.',
+                description: 'Remove double numbering (1.  1. → 1.)'
+            },
+            {
+                pattern: /\*\s+•\s+/g,
+                replacement: '* ',
+                description: 'Remove bullet dots (* • → *)'
+            },
+            {
+                pattern: /^(\s*)(\d+)\.\s+$/gm,
+                replacement: '$1$2. ',
+                description: 'Fix empty numbered lists'
+            },
+            {
+                pattern: /\n{3,}/g,
+                replacement: '\n\n',
+                description: 'Replace multiple newlines with double newline'
+            }
+        ]
     }
 ];
 

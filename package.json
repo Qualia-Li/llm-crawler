@@ -13,6 +13,7 @@
     "clean:all": "tsx scripts/clean_answers.ts",
     "clean:ernie": "tsx scripts/clean_answers.ts 文心一言",
     "clean:doubao": "tsx scripts/clean_answers.ts 豆包",
+    "clean:yuanbao": "tsx scripts/clean_answers.ts 元宝",
     "reinsert:deepseek": "tsx scripts/reinsert_deepseek.ts"
   },
   "keywords": [
