@@ -69,6 +69,11 @@ export const cleanConfig: PlatformCleanConfig[] = [
         platform: '豆包',
         rules: [
             {
+                pattern: /!\[.*?\]\(https?:\/\/[^\)]+\)/g,
+                replacement: '',
+                description: 'Remove image markdown: ![...](https://...)'
+            },
+            {
                 pattern: /([^\n*])\*\s+/g,
                 replacement: '$1\n* ',
                 description: 'Add newline before * (for bullet points)'
