@@ -74,7 +74,12 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Remove image markdown: ![...](https://...)'
             },
             {
-                pattern: /([^\n*])\*\s+/g,
+                pattern: /([；;])\s*\*\s+/g,
+                replacement: '$1\n* ',
+                description: 'Add newline before * after semicolons (；* or ; *)'
+            },
+            {
+                pattern: /([^\n*；;])\*\s+/g,
                 replacement: '$1\n* ',
                 description: 'Add newline before * (for bullet points)'
             },
