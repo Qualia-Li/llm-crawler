@@ -39,7 +39,7 @@ const perEngine = async (plat: Engines) => {
                 console.log("Error " + plat)
                 console.error(e)
             });
-        const md = toMD(res || "")
+        const md = /*toMD*/(res || "")
         tasks[plat].push(md)
         questionList.forEach(function (v) {
             if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat].push(md)
