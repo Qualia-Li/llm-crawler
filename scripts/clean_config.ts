@@ -54,6 +54,11 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Add newline after ### headings'
             },
             {
+                pattern: /(\[[\^\d]+\]|【\d+】)。/g,
+                replacement: '$1',
+                description: 'Remove trailing Chinese period after citations ([1]。 → [1])'
+            },
+            {
                 pattern: /\n{3,}/g,
                 replacement: '\n\n',
                 description: 'Replace 3+ newlines with double newline'
@@ -72,6 +77,11 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 pattern: /([^\n*])\*\s+/g,
                 replacement: '$1\n* ',
                 description: 'Add newline before * (for bullet points, not markdown bold)'
+            },
+            {
+                pattern: /(\[[\^\d]+\]|【\d+】)。/g,
+                replacement: '$1',
+                description: 'Remove trailing Chinese period after citations ([1]。 → [1])'
             },
             {
                 pattern: /\n{3,}/g,
@@ -104,6 +114,11 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Replace \\. with .'
             },
             {
+                pattern: /(\[[\^\d]+\]|【\d+】)。/g,
+                replacement: '$1',
+                description: 'Remove trailing Chinese period after citations ([1]。 → [1])'
+            },
+            {
                 pattern: /\n{3,}/g,
                 replacement: '\n\n',
                 description: 'Replace multiple newlines with double newline'
@@ -117,6 +132,11 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 pattern: /检索到\d+篇搜索来源[\s\S]*?!\[收起\]\(https:\/\/cdn\.sm\.cn\/static\/25\/02\/17\/[a-f0-9]+\.png\)/g,
                 replacement: '',
                 description: 'Remove search metadata block (from "检索到XX篇搜索来源..." to "![收起]" image)'
+            },
+            {
+                pattern: /(\[[\^\d]+\]|【\d+】)。/g,
+                replacement: '$1',
+                description: 'Remove trailing Chinese period after citations ([1]。 → [1])'
             },
             {
                 pattern: /\n{3,}/g,
@@ -157,6 +177,26 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 pattern: /^(\s*)(\d+)\.\s*$/gm,
                 replacement: '$1$2. ',
                 description: 'Fix empty numbered lists'
+            },
+            {
+                pattern: /(\[[\^\d]+\]|【\d+】)。/g,
+                replacement: '$1',
+                description: 'Remove trailing Chinese period after citations ([1]。 → [1])'
+            },
+            {
+                pattern: /\n{3,}/g,
+                replacement: '\n\n',
+                description: 'Replace multiple newlines with double newline'
+            }
+        ]
+    },
+    {
+        platform: 'kimi',
+        rules: [
+            {
+                pattern: /(\\\[[\^\d]+\])。/g,
+                replacement: '$1',
+                description: 'Remove trailing Chinese period after citations (\\[^1\\]。 → \\[^1\\])'
             },
             {
                 pattern: /\n{3,}/g,
