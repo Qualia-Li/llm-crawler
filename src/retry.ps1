@@ -1,4 +1,4 @@
-$maxRetries = 3
+$maxRetries = 8
 $retryCount = 0
 $success = $false
 
