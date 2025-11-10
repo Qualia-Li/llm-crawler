@@ -11,7 +11,8 @@
     "clean:deepseek": "tsx scripts/clean_deepseek_patterns.ts",
     "clean:all": "tsx scripts/clean_answers.ts",
     "clean:ernie": "tsx scripts/clean_answers.ts 文心一言",
-    "clean:doubao": "tsx scripts/clean_answers.ts 豆包"
+    "clean:doubao": "tsx scripts/clean_answers.ts 豆包",
+    "reinsert:deepseek": "tsx scripts/reinsert_deepseek.ts"
   },
   "keywords": [
     "GEO",
