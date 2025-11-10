@@ -64,6 +64,26 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Replace multiple newlines with double newline'
             }
         ]
+    },
+    {
+        platform: '豆包',
+        rules: [
+            {
+                pattern: /([^\n*])\*\s+/g,
+                replacement: '$1\n* ',
+                description: 'Add newline before * (for bullet points)'
+            },
+            {
+                pattern: /\\\./g,
+                replacement: '.',
+                description: 'Replace \\. with .'
+            },
+            {
+                pattern: /\n{3,}/g,
+                replacement: '\n\n',
+                description: 'Replace multiple newlines with double newline'
+            }
+        ]
     }
 ];
 

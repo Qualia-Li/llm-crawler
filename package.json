@@ -10,7 +10,8 @@
     "result:build": "cd src/resultView && pnpm run build",
     "clean:deepseek": "tsx scripts/clean_deepseek_patterns.ts",
     "clean:all": "tsx scripts/clean_answers.ts",
-    "clean:ernie": "tsx scripts/clean_answers.ts 文心一言"
+    "clean:ernie": "tsx scripts/clean_answers.ts 文心一言",
+    "clean:doubao": "tsx scripts/clean_answers.ts 豆包"
   },
   "keywords": [
     "GEO",
