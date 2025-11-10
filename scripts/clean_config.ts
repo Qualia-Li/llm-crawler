@@ -39,6 +39,16 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Replace \\_ with _'
             },
             {
+                pattern: / \* /g,
+                replacement: '\n * ',
+                description: 'Replace " * " with "\\n * " (add newline before bullet points)'
+            },
+            {
+                pattern: /(###[^\n]+[^ \n]) /g,
+                replacement: '$1\n',
+                description: 'Add newline after ### headings'
+            },
+            {
                 pattern: /\s{2,}/g,
                 replacement: ' ',
                 description: 'Replace multiple spaces with single space'
