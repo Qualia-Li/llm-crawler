@@ -9,7 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/src/resultView/.idea" />
       <excludeFolder url="file://$MODULE_DIR$/user-data" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="C:\Users\liqi6\miniconda3" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
