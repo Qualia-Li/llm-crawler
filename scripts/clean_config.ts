@@ -134,17 +134,27 @@ export const cleanConfig: PlatformCleanConfig[] = [
                 description: 'Remove zero-width space characters (U+200B)'
             },
             {
+                pattern: /\n\s*(\d+)\s*\n/g,
+                replacement: '\n',
+                description: 'Remove orphaned numbers (footnote refs on separate lines)'
+            },
+            {
+                pattern: /(\d+)\.(\d+)\./g,
+                replacement: '$1.',
+                description: 'Remove double numbering (1.1. → 1., 2.2. → 2.)'
+            },
+            {
                 pattern: /(\d+)\.\s+\1\./g,
                 replacement: '$1.',
                 description: 'Remove double numbering (1.  1. → 1.)'
             },
             {
-                pattern: /\*\s+•\s+/g,
+                pattern: /\*\s+•+\s*/g,
                 replacement: '* ',
-                description: 'Remove bullet dots (* • → *)'
+                description: 'Remove bullet dots (* •• → *)'
             },
             {
-                pattern: /^(\s*)(\d+)\.\s+$/gm,
+                pattern: /^(\s*)(\d+)\.\s*$/gm,
                 replacement: '$1$2. ',
                 description: 'Fix empty numbered lists'
             },
