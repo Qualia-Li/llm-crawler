@@ -36,9 +36,7 @@ export class askQuark extends BaseEngine {
             {timeout: 70000}
         );
 
-        await this.page.evaluate(function (){
-            document.querySelectorAll("style,script").forEach(e=>e.remove())
-        })
+
 
         return await this.page
             .locator("#sgs-container")

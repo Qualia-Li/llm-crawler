@@ -1,7 +1,7 @@
 import {engines, Engines} from "@/src/engines/engines";
 import {save} from "@/src/utils/save";
 import {myStealth} from "@/src/engines/myStealth";
-import {toMD} from "@/src/utils/markdown";
+import {pure} from "@/src/utils/pureHTML";
 
 
 let tasks: { [key in Engines]: string[] } = {
@@ -17,6 +17,7 @@ const mapQuestionsToTasks = () => {
     for (const question of questionList) {
         for (const platformsKey in question.platforms) {
             const plat = platformsKey as Engines
+
             if (question.platforms[plat].length == 0) {
                 tasks[plat].push(question.coreKeyword)
             }
@@ -39,7 +40,7 @@ const perEngine = async (plat: Engines) => {
                 console.log("Error " + plat)
                 console.error(e)
             });
-        const md = /*toMD*/(res || "")
+        const md = await pure(res || "")
         tasks[plat].push(md)
         questionList.forEach(function (v) {
             if (v.coreKeyword === text || v.extendedKeywords.includes(text)) v.platforms[plat].push(md)
@@ -63,15 +64,15 @@ export const QuestionLoop = async () => {
         // cause context break
         {
             setInterval(() => {
-                setTimeout(() => {
-                    engines[plat].page.bringToFront().catch()
+                setTimeout(async() => {
+                    await engines[plat].page.bringToFront().catch(console.error)
                 }, Math.random() * 20)
 
             }, 20_000);
             for (let i = 0; i < 10; i++) {
                 setInterval(() => {
-                    setTimeout(() => {
-                        engines[plat].page.evaluate(myStealth).catch()
+                    setTimeout(async() => {
+                        await engines[plat].page.evaluate(myStealth).catch(console.error)
                     }, Math.random() * 20)
                 }, 8_000)
             }
