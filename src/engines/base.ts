@@ -16,8 +16,8 @@ export class BaseEngine {
         }
 
         await this.page.setViewport({
-            width: 1000,
-            height: 450,
+            width: 1200,
+            height: 800,
             deviceScaleFactor: 1,
             isMobile: false,
             hasTouch: false,

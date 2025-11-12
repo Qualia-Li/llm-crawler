@@ -5,7 +5,7 @@ async function main() {
     console.log('📊 Loading queue from database...\n');
 
     const keywords = await loadKeywordsToQuery();
-    console.log(`Found ${keywords.length} keywords to query today\n`);
+    console.log(`Found ${keywords.length} core keywords to query today\n`);
 
     const taskQueues = await buildTaskQueue(keywords);
     const status = getQueueStatus(taskQueues);
