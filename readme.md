@@ -26,19 +26,20 @@ Supported platforms: DeepSeek, Kimi, Doubao (豆包), Yuanbao (元宝), Quark (�
   - Saves results to local files
   - Kept for backwards compatibility only
 
-- **`pnpm login`** - Open all platforms for manual login
-  - Opens all 6 platforms in separate tabs
+- **`pnpm run login`** - Open all platforms for manual login
+  - Opens 7 tabs: IP checker + 6 platforms
   - Wait for you to log in to each platform
   - Sessions are saved automatically for future runs
   - Use this when platform sessions expire
+  - Uses iproyal proxy from .env.local
 
 ### Queue Management
 
-- **`pnpm queue`** - Show queue status in terminal
+- **`pnpm run queue`** - Show queue status in terminal
   - Displays pending questions per platform
   - Shows example pending questions
 
-- **`pnpm queue:web`** - Open web-based queue dashboard
+- **`pnpm run queue:web`** - Open web-based queue dashboard
   - Access at http://localhost:8081
   - View detailed metrics and progress
   - Filter by date
@@ -64,13 +65,13 @@ Supported platforms: DeepSeek, Kimi, Doubao (豆包), Yuanbao (元宝), Quark (�
 ### First Time Setup
 
 1. Install dependencies: `pnpm i`
-2. Log in to all platforms: `pnpm login`
+2. Log in to all platforms: `pnpm run login`
 3. Manually log in to each platform in the opened browser tabs
 4. Close the browser when done
 
 ### Daily Usage
 
-1. Check queue status: `pnpm queue` or `pnpm queue:web`
+1. Check queue status: `pnpm run queue` or `pnpm run queue:web`
 2. Start crawler: `pnpm run:db`
 3. Monitor progress on the queue dashboard
 
