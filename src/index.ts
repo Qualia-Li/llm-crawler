@@ -22,12 +22,22 @@ const main = async () => {
     puppeteer.use(StealthPlugin())
     //puppeteer.use(AdblockerPlugin({blockTrackers: true}))
 
-    //Launch browser
-    globalThis.browser = await puppeteer.launch({
+    //Launch browser with optional proxy support
+    const launchOptions: any = {
         headless: false,
         userDataDir: "./user-data",
         executablePath: process.env.BROWSER_PATH,//ok to be undefined
-    });
+    };
+
+    // Add proxy configuration if PROXY_SERVER is set
+    if (process.env.PROXY_SERVER) {
+        console.log(`Using proxy: ${process.env.PROXY_SERVER}`);
+        launchOptions.args = [
+            `--proxy-server=${process.env.PROXY_SERVER}`
+        ];
+    }
+
+    globalThis.browser = await puppeteer.launch(launchOptions);
 
     // Server
     await import('./utils/Database/server')
