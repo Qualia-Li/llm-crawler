@@ -47,26 +47,30 @@ async function getQueueData(targetDate?: string) {
     const totalExpected = Object.values(platformStats).reduce((sum, s) => sum + s.total, 0);
     const totalCompleted = totalExpected - totalPending;
 
-    // Get detailed unfinished questions by platform
+    // Get detailed unfinished questions by platform (extended keywords only)
     const unfinishedByPlatform: Record<string, Array<{keyword: string, isExtended: boolean}>> = {};
     for (const [platform, tasks] of Object.entries(taskQueues)) {
-        unfinishedByPlatform[platform] = tasks.map(task => ({
-            keyword: task.extendedKeyword || task.coreKeyword,
-            isExtended: !!task.extendedKeyword
-        }));
+        unfinishedByPlatform[platform] = tasks
+            .filter(task => task.extendedKeyword) // Only show extended keywords
+            .map(task => ({
+                keyword: task.extendedKeyword!,
+                isExtended: true
+            }));
     }
 
-    // Get completed questions
+    // Get completed questions (extended keywords only)
     const completedQuestions = await getCompletedQuestions(keywords);
     const completedByPlatform: Record<string, Array<{keyword: string, isExtended: boolean}>> = {};
     for (const q of completedQuestions) {
-        if (!completedByPlatform[q.platform]) {
-            completedByPlatform[q.platform] = [];
+        if (q.extendedKeyword) { // Only show extended keywords
+            if (!completedByPlatform[q.platform]) {
+                completedByPlatform[q.platform] = [];
+            }
+            completedByPlatform[q.platform].push({
+                keyword: q.extendedKeyword,
+                isExtended: true
+            });
         }
-        completedByPlatform[q.platform].push({
-            keyword: q.extendedKeyword || q.coreKeyword,
-            isExtended: !!q.extendedKeyword
-        });
     }
 
     return {
@@ -85,20 +89,20 @@ function generatePlatformDetails(platform: string, completed: Array<{keyword: st
     return `
         <div id="details-${platform}" class="platform-details">
             <div class="details-section">
-                <h4 style="color: #28a745; margin-bottom: 10px;">✓ Completed (${completed.length})</h4>
-                ${completed.length > 0 ? completed.map(item => `
-                    <div class="question-item completed-item ${item.isExtended ? 'extended' : ''}">
-                        ${item.keyword}
-                    </div>
-                `).join('') : '<p style="color: #6c757d; font-size: 0.9em;">No completed questions</p>'}
-            </div>
-            <div class="details-section" style="margin-top: 20px;">
                 <h4 style="color: #dc3545; margin-bottom: 10px;">⚠ Pending (${unfinished.length})</h4>
                 ${unfinished.length > 0 ? unfinished.map(item => `
                     <div class="question-item pending-item ${item.isExtended ? 'extended' : ''}">
                         ${item.keyword}
                     </div>
                 `).join('') : '<p style="color: #6c757d; font-size: 0.9em;">No pending questions</p>'}
+            </div>
+            <div class="details-section" style="margin-top: 20px;">
+                <h4 style="color: #28a745; margin-bottom: 10px;">✓ Completed (${completed.length})</h4>
+                ${completed.length > 0 ? completed.map(item => `
+                    <div class="question-item completed-item ${item.isExtended ? 'extended' : ''}">
+                        ${item.keyword}
+                    </div>
+                `).join('') : '<p style="color: #6c757d; font-size: 0.9em;">No completed questions</p>'}
             </div>
         </div>
     `;
