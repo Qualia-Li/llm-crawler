@@ -95,25 +95,31 @@ async function loginAll() {
     for (const platform of PLATFORMS) {
         console.log(`  • ${platform.name} - ${platform.url}`);
     }
-    console.log("\n⏳ Keeping browser open... Press Ctrl+C to exit");
+    console.log("\n⏳ Keeping browser open... Close the browser window when done");
 
-    // Keep the script running until browser is closed
-    await new Promise((resolve) => {
+    // Wait for browser to be closed
+    await new Promise<void>((resolve) => {
+        // Listen for browser disconnect event (most reliable)
+        browser.on('disconnected', () => {
+            console.log("\n✅ Browser closed. Login sessions saved!");
+            resolve();
+        });
+
+        // Backup: Poll to check if browser is still connected
         const checkInterval = setInterval(async () => {
             try {
-                const targets = await browser.targets();
-                if (targets.length === 0 || !browser.isConnected()) {
+                if (!browser.isConnected()) {
                     clearInterval(checkInterval);
-                    resolve(null);
+                    console.log("\n✅ Browser closed. Login sessions saved!");
+                    resolve();
                 }
             } catch (error) {
                 clearInterval(checkInterval);
-                resolve(null);
+                resolve();
             }
         }, 1000);
     });
 
-    console.log("\n✅ Browser closed. Login sessions saved!");
     process.exit(0);
 }
 
