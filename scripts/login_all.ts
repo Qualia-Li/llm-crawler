@@ -1,7 +1,10 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { parseProxyUrl } from "../src/utils/proxyConfig";
-import "dotenv/config";
+import { config } from "dotenv";
+
+// Load .env.local explicitly
+config({ path: ".env.local" });
 
 // Platform URLs
 const PLATFORMS = [
@@ -32,9 +35,15 @@ async function loginAll() {
         const proxyConfig = parseProxyUrl(process.env.PROXY_SERVER);
 
         if (proxyConfig) {
-            console.log(`Using proxy: ${proxyConfig.server}`);
+            console.log(`✅ Using proxy: ${proxyConfig.server}`);
+            console.log(`   Username: ${proxyConfig.username ? '✓' : '✗'}`);
+            console.log(`   Password: ${proxyConfig.password ? '✓' : '✗'}\n`);
             launchOptions.args = [`--proxy-server=${proxyConfig.server}`];
+        } else {
+            console.log(`⚠️  PROXY_SERVER set but failed to parse\n`);
         }
+    } else {
+        console.log(`⚠️  No PROXY_SERVER found in environment - using direct connection\n`);
     }
 
     const browser = await puppeteer.launch(launchOptions);
