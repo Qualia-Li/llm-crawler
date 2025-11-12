@@ -3,7 +3,7 @@ import { loadKeywordsToQuery, buildTaskQueue, getQueueStatus, TaskQueue } from "
 import { saveAnswer, answerExists } from "@/src/utils/Database/saver";
 import { myStealth } from "@/src/engines/myStealth";
 import { formatError } from "@/src/utils/errorFormatter";
-import { question } from "@/src/utils/prompt";
+import { pressAnyKey } from "@/src/utils/prompt";
 
 // Track task queues
 let taskQueues: TaskQueue = {};
@@ -195,5 +195,6 @@ export const QuestionLoopDB = async (targetDate?: string) => {
     console.log();
 
     // Wait for user to press any key
-    await question('Press any key to end...');
+    await pressAnyKey('Press any key to end...');
+    console.log(); // Add newline after key press
 };

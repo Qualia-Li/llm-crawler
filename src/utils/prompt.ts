@@ -90,3 +90,20 @@ export async function askPlatforms<T extends string>(platforms: T[]): Promise<T[
 
     return selected;
 }
+
+/**
+ * Wait for any key press (doesn't require Enter)
+ */
+export async function pressAnyKey(message: string = 'Press any key to continue...'): Promise<void> {
+    process.stdout.write(message);
+
+    return new Promise((resolve) => {
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+        process.stdin.once('data', () => {
+            process.stdin.setRawMode(false);
+            process.stdin.pause();
+            resolve();
+        });
+    });
+}
