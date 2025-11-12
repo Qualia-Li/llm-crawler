@@ -129,10 +129,10 @@ const main = async () => {
     }
 
     console.log('\n' + '='.repeat(80));
-    console.log('✅ Test complete! Press Ctrl+C to exit.\n');
+    console.log('✅ Test complete!\n');
 
-    // Keep process alive to inspect results
-    await new Promise(() => {});
+    // Exit cleanly
+    process.exit(0);
 };
 
 main().catch(console.error);
