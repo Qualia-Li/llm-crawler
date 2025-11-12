@@ -31,14 +31,13 @@ const testPlatform = async (platform: Engines) => {
             console.log('--- Raw HTML (first 200 chars) ---');
             console.log(rawAnswer.substring(0, 200) + '...\n');
 
-            // Convert to markdown
-            const markdown = await pure(rawAnswer);
-            console.log(`✅ Markdown conversion successful`);
-            console.log(`Markdown length: ${markdown?.length || 0} characters\n`);
+            // Clean HTML
+            const cleanedHTML = await pure(rawAnswer);
+            console.log(`Cleaned HTML length: ${cleanedHTML?.length || 0} characters\n`);
 
-            // Show markdown result
-            console.log('--- Markdown Result ---');
-            console.log(markdown);
+            // Show cleaned result
+            console.log('--- Cleaned HTML Result ---');
+            console.log(cleanedHTML);
             console.log('\n--- End of Result ---');
         } else {
             console.log('❌ No answer received');
