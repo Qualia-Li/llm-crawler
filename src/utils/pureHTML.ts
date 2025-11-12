@@ -14,7 +14,9 @@ const getTmpPage = async () => {
 
 export const pure = async (html: string) => {
     const page = await getTmpPage();
-    await page.evaluate("document.body.innerHTML=" + `"${html}"`)
+    await page.evaluate((htmlContent) => {
+        document.body.innerHTML = htmlContent;
+    }, html)
     await page.evaluate(() => {
         // 获取页面中所有元素
         const allElements = document.querySelectorAll('*');
