@@ -9,6 +9,12 @@ export class BaseEngine {
     async init() {
         if (this.initialized) return this.ask
         this.page = await globalThis.browser.newPage();
+
+        // Set up proxy authentication if credentials are available
+        if (globalThis.proxyAuth) {
+            await this.page.authenticate(globalThis.proxyAuth);
+        }
+
         await this.page.setViewport({
             width: 1000,
             height: 450,

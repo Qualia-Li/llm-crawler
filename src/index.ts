@@ -6,9 +6,11 @@ import {SearchKeyword} from "./question-list";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 import {save} from "@/src/utils/save";
+import { parseProxyUrl } from "./utils/proxyConfig";
 
 declare global {
     var browser: import('puppeteer').Browser, questionList: SearchKeyword[];
+    var proxyAuth: { username: string; password: string } | null;
 }
 
 //Main
@@ -31,10 +33,22 @@ const main = async () => {
 
     // Add proxy configuration if PROXY_SERVER is set
     if (process.env.PROXY_SERVER) {
-        console.log(`Using proxy: ${process.env.PROXY_SERVER}`);
-        launchOptions.args = [
-            `--proxy-server=${process.env.PROXY_SERVER}`
-        ];
+        const proxyConfig = parseProxyUrl(process.env.PROXY_SERVER);
+
+        if (proxyConfig) {
+            console.log(`Using proxy: ${proxyConfig.server}`);
+            launchOptions.args = [
+                `--proxy-server=${proxyConfig.server}`
+            ];
+
+            // Store credentials globally for page authentication
+            if (proxyConfig.username && proxyConfig.password) {
+                globalThis.proxyAuth = {
+                    username: proxyConfig.username,
+                    password: proxyConfig.password
+                };
+            }
+        }
     }
 
     globalThis.browser = await puppeteer.launch(launchOptions);
