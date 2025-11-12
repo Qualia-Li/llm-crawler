@@ -10,26 +10,104 @@ async function getQueueData(targetDate?: string) {
     const status = getQueueStatus(taskQueues);
     const dateUsed = targetDate || new Date().toLocaleDateString('en-CA');
 
+    // Calculate total expected and completed questions per platform
+    const platformStats: Record<string, { pending: number; total: number; completed: number }> = {};
+
+    for (const keyword of keywords) {
+        const questionsPerKeyword = 1 + keyword.extendedKeywords.length; // core + extended
+
+        for (const platform of keyword.platforms) {
+            if (!platformStats[platform]) {
+                platformStats[platform] = { pending: 0, total: 0, completed: 0 };
+            }
+            platformStats[platform].total += questionsPerKeyword;
+        }
+    }
+
+    // Add pending counts and calculate completed
+    for (const { platform, count } of status) {
+        if (platformStats[platform]) {
+            platformStats[platform].pending = count;
+            platformStats[platform].completed = platformStats[platform].total - count;
+        }
+    }
+
+    // Enhance status with completion info
+    const enhancedStatus = status.map(s => ({
+        platform: s.platform,
+        count: s.count,
+        completed: platformStats[s.platform]?.completed || 0,
+        total: platformStats[s.platform]?.total || 0,
+        percentage: platformStats[s.platform]?.total > 0
+            ? ((platformStats[s.platform].completed / platformStats[s.platform].total) * 100).toFixed(1)
+            : '0'
+    }));
+
+    const totalPending = status.reduce((sum, s) => sum + s.count, 0);
+    const totalExpected = Object.values(platformStats).reduce((sum, s) => sum + s.total, 0);
+    const totalCompleted = totalExpected - totalPending;
+
+    // Get detailed unfinished questions
+    const unfinishedQuestions: Array<{platform: string, keyword: string, isExtended: boolean}> = [];
+    for (const [platform, tasks] of Object.entries(taskQueues)) {
+        for (const task of tasks) {
+            const questionText = task.extendedKeyword || task.coreKeyword;
+            unfinishedQuestions.push({
+                platform,
+                keyword: questionText,
+                isExtended: !!task.extendedKeyword
+            });
+        }
+    }
+
     return {
         keywords: keywords.length,
-        status: status.sort((a, b) => b.count - a.count),
-        totalPending: status.reduce((sum, s) => sum + s.count, 0),
-        dateUsed
+        status: enhancedStatus.sort((a, b) => b.count - a.count),
+        totalPending,
+        totalCompleted,
+        totalExpected,
+        dateUsed,
+        unfinishedQuestions
     };
 }
 
+function generateUnfinishedList(questions: Array<{platform: string, keyword: string, isExtended: boolean}>) {
+    // Group by platform
+    const grouped: Record<string, Array<{keyword: string, isExtended: boolean}>> = {};
+    for (const q of questions) {
+        if (!grouped[q.platform]) {
+            grouped[q.platform] = [];
+        }
+        grouped[q.platform].push({ keyword: q.keyword, isExtended: q.isExtended });
+    }
+
+    let html = '';
+    for (const [platform, items] of Object.entries(grouped)) {
+        html += `
+            <div class="platform-group">
+                <h3>${platform} (${items.length} pending)</h3>
+                ${items.map(item => `
+                    <div class="question-item ${item.isExtended ? 'extended' : ''}">
+                        ${item.keyword}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    return html || '<p style="text-align: center; color: #6c757d;">No unfinished questions</p>';
+}
+
 function generateHTML(data: any) {
-    // Calculate total questions for this date
-    const totalNeeded = data.keywords * 6 * 16; // Approximate: keywords * avg platforms * avg questions
-    const totalCompleted = Math.max(0, totalNeeded - data.totalPending);
-    const overallProgress = totalNeeded > 0 ? ((totalCompleted / totalNeeded) * 100).toFixed(1) : '0';
+    const overallProgress = data.totalExpected > 0
+        ? ((data.totalCompleted / data.totalExpected) * 100).toFixed(1)
+        : '0';
 
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Queue Status - ${data.dateUsed}</title>
+    <title>Queue Status Dashboard</title>
     <style>
         * {
             margin: 0;
@@ -66,7 +144,7 @@ function generateHTML(data: any) {
         }
         .summary {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             padding: 30px 40px;
             background: #f8f9fa;
@@ -204,13 +282,66 @@ function generateHTML(data: any) {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
+        .unfinished-section {
+            padding: 40px;
+        }
+        .unfinished-toggle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .unfinished-toggle button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .unfinished-toggle button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .unfinished-list {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .unfinished-list.show {
+            display: block;
+        }
+        .platform-group {
+            margin-bottom: 30px;
+        }
+        .platform-group h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .question-item {
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        .question-item.extended {
+            border-left-color: #764ba2;
+            background: #f3f0f7;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>📊 Queue Status Dashboard</h1>
-            <p>${data.dateUsed}</p>
         </div>
 
         <div class="date-picker">
@@ -230,7 +361,11 @@ function generateHTML(data: any) {
             </div>
             <div class="summary-card">
                 <div class="label">Completed</div>
-                <div class="value">${totalCompleted}</div>
+                <div class="value">${data.totalCompleted}</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Total Expected</div>
+                <div class="value">${data.totalExpected}</div>
             </div>
             <div class="summary-card">
                 <div class="label">Progress</div>
@@ -243,22 +378,22 @@ function generateHTML(data: any) {
                 <thead>
                     <tr>
                         <th>Platform</th>
-                        <th>Pending Questions</th>
-                        <th>Status</th>
+                        <th>Completed</th>
+                        <th>Pending</th>
+                        <th>Total</th>
                         <th>Progress</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${data.status.map((s: any) => {
-                        const progress = s.count === 0 ? 100 : 0;
-                        const badge = s.count === 0 ? 'badge-success' : (s.count < 100 ? 'badge-warning' : 'badge-danger');
-                        const statusText = s.count === 0 ? 'Complete ✓' : `${s.count} remaining`;
+                        const progress = parseFloat(s.percentage);
 
                         return `
                         <tr>
                             <td><strong>${s.platform}</strong></td>
-                            <td>${s.count}</td>
-                            <td><span class="badge ${badge}">${statusText}</span></td>
+                            <td style="color: #28a745; font-weight: 600;">${s.completed}</td>
+                            <td style="color: #dc3545; font-weight: 600;">${s.count}</td>
+                            <td>${s.total}</td>
                             <td>
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: ${progress}%">
@@ -271,6 +406,15 @@ function generateHTML(data: any) {
                     }).join('')}
                 </tbody>
             </table>
+        </div>
+
+        <div class="unfinished-section">
+            <div class="unfinished-toggle">
+                <button onclick="toggleUnfinished()">Show Unfinished Questions (${data.totalPending})</button>
+            </div>
+            <div id="unfinishedList" class="unfinished-list">
+                ${generateUnfinishedList(data.unfinishedQuestions)}
+            </div>
         </div>
 
         <div class="refresh-note">
@@ -286,6 +430,18 @@ function generateHTML(data: any) {
             const date = document.getElementById('date').value;
             if (date) {
                 window.location.href = '/?date=' + date;
+            }
+        }
+
+        function toggleUnfinished() {
+            const list = document.getElementById('unfinishedList');
+            const button = event.target;
+            if (list.classList.contains('show')) {
+                list.classList.remove('show');
+                button.textContent = 'Show Unfinished Questions (${data.totalPending})';
+            } else {
+                list.classList.add('show');
+                button.textContent = 'Hide Unfinished Questions';
             }
         }
 
