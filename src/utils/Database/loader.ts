@@ -184,3 +184,60 @@ export async function getCompletedQuestions(keywords: KeywordTask[]): Promise<Co
 
     return completed;
 }
+
+/**
+ * Get summary statistics for keywords and answers
+ */
+export interface QueueSummary {
+    targetDate: string;
+    totalKeywords: number;
+    totalQuestions: number; // total questions across all platforms (core + extended)
+    completedQuestions: number;
+    pendingQuestions: number;
+    platformStats: {
+        platform: string;
+        completed: number;
+        pending: number;
+        total: number;
+    }[];
+}
+
+export async function getQueueSummary(keywords: KeywordTask[], queue: TaskQueue): Promise<QueueSummary> {
+    const completed = await getCompletedQuestions(keywords);
+
+    // Calculate total questions (core + extended for each platform)
+    let totalQuestions = 0;
+    const platformSet = new Set<string>();
+
+    for (const keyword of keywords) {
+        for (const platform of keyword.platforms) {
+            platformSet.add(platform);
+            // 1 core + extended keywords
+            totalQuestions += 1 + keyword.extendedKeywords.length;
+        }
+    }
+
+    // Calculate platform stats
+    const platformStats: QueueSummary['platformStats'] = [];
+    for (const platform of Array.from(platformSet).sort()) {
+        const platformCompleted = completed.filter(c => c.platform === platform).length;
+        const platformPending = queue[platform]?.length || 0;
+        const platformTotal = platformCompleted + platformPending;
+
+        platformStats.push({
+            platform,
+            completed: platformCompleted,
+            pending: platformPending,
+            total: platformTotal
+        });
+    }
+
+    return {
+        targetDate: keywords[0]?.dateQueried || '',
+        totalKeywords: keywords.length,
+        totalQuestions,
+        completedQuestions: completed.length,
+        pendingQuestions: platformStats.reduce((sum, s) => sum + s.pending, 0),
+        platformStats
+    };
+}

@@ -10,10 +10,10 @@ let taskQueues: TaskQueue = {};
 /**
  * Load keywords and build task queues from database
  */
-const loadTasks = async () => {
+const loadTasks = async (targetDate?: string) => {
     console.log('📊 Loading tasks from database...');
 
-    const keywords = await loadKeywordsToQuery();
+    const keywords = await loadKeywordsToQuery(targetDate);
     console.log(`Found ${keywords.length} keywords to query`);
 
     taskQueues = await buildTaskQueue(keywords);
@@ -84,9 +84,9 @@ const perEngine = async (plat: Engines) => {
 /**
  * Main question loop - database version
  */
-export const QuestionLoopDB = async () => {
+export const QuestionLoopDB = async (targetDate?: string) => {
     // Load tasks from database
-    await loadTasks();
+    await loadTasks(targetDate);
 
     // Start processing each platform in parallel
     for (const platformKey in engines) {

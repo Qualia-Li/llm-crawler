@@ -54,9 +54,26 @@ const main = async () => {
     await QuestionLoop();
 }
 
-const retry = async (e = "Start" as any) => {
-    console.log("Retried because of the err below:")
-    console.error(e)
-    await main().catch(retry)
-}
-await retry()
+const retry = async (e = "Start" as any, retryCount = 0) => {
+    const MAX_RETRIES = 3;
+
+    console.log("Retried because of the err below:");
+    console.error(e);
+
+    // Check if error is about browser already running
+    if (e?.message?.includes("browser is already running")) {
+        console.error("\n❌ ERROR: Browser is already running!");
+        console.error("Please close any existing Chrome instances or run: pkill -f 'Google Chrome for Testing.*user-data'");
+        process.exit(1);
+    }
+
+    if (retryCount >= MAX_RETRIES) {
+        console.error(`\n❌ Max retries (${MAX_RETRIES}) reached. Exiting...`);
+        process.exit(1);
+    }
+
+    console.log(`Retry attempt ${retryCount + 1}/${MAX_RETRIES}...`);
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+    await main().catch(e => retry(e, retryCount + 1));
+};
+await retry();
