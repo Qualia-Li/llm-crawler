@@ -6,6 +6,9 @@
   "type": "module",
   "scripts": {
     "run": "tsx src/index.ts",
+    "run:db": "tsx src/indexDB.ts",
+    "queue": "tsx scripts/show_queue_db.ts",
+    "queue:web": "tsx src/utils/Database/queueServer.ts",
     "clean:deepseek": "tsx scripts/clean_answers.ts deepseek",
     "clean:deepseek:legacy": "tsx scripts/clean_deepseek_patterns.ts",
     "clean:all": "tsx scripts/clean_answers.ts",
@@ -24,6 +27,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.12.1",
   "dependencies": {
+    "@supabase/supabase-js": "^2.81.1",
     "csv": "latest",
     "dotenv": "latest",
     "openai": "^6.7.0",
