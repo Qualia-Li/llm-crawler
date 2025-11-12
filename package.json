@@ -8,6 +8,7 @@
     "run": "tsx src/index.ts",
     "run:db": "tsx src/indexDB.ts",
     "login": "tsx scripts/login_all.ts",
+    "test_scrape": "tsx scripts/test_scrape.ts",
     "queue": "tsx scripts/show_queue_db.ts",
     "queue:web": "tsx src/utils/Database/queueServer.ts",
     "clean:deepseek": "tsx scripts/clean_answers.ts deepseek",

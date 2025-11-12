@@ -30,34 +30,11 @@ export class BaseEngine {
 
     /**
      * Check if page contains login-related text and wait for user to log in
+     * DISABLED: Login detection is disabled to speed up scraping
      */
     async waitForLogin() {
-        const loginKeywords = ['email', '邮箱', 'login', 'sign in', '登录', '登陆', 'password', '密码'];
-
-        while (true) {
-            try {
-                // Get page text content
-                const bodyText = await this.page.evaluate(() => document.body.innerText.toLowerCase());
-
-                // Check if any login keyword is present
-                const hasLoginKeyword = loginKeywords.some(keyword =>
-                    bodyText.includes(keyword.toLowerCase())
-                );
-
-                if (hasLoginKeyword) {
-                    console.log(`⏳ ${this.engineName}: Login page detected. Waiting for login to complete...`);
-                    // Wait 5 seconds before checking again
-                    await new Promise(resolve => setTimeout(resolve, 5000));
-                } else {
-                    // No login keywords found, assume logged in
-                    break;
-                }
-            } catch (error) {
-                // If error occurs, break and let the calling code handle it
-                console.log(`⚠️  ${this.engineName}: Error checking for login, proceeding anyway`);
-                break;
-            }
-        }
+        // Login detection disabled
+        return;
     }
 
     async ask(_question: string) {
