@@ -5,6 +5,7 @@ import "dotenv/config";
 
 // Platform URLs
 const PLATFORMS = [
+    { name: "IP Checker (verify proxy)", url: "https://ip.900cha.com/" },
     { name: "DeepSeek", url: "https://chat.deepseek.com/" },
     { name: "Kimi", url: "https://www.kimi.com/" },
     { name: "豆包 (Doubao)", url: "https://www.doubao.com/chat/" },
