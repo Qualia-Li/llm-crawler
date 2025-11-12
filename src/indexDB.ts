@@ -1,5 +1,4 @@
 import puppeteer from "puppeteer-extra";
-import { execSync } from "child_process";
 
 // Add stealth plugin
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
@@ -110,15 +109,6 @@ const main = async () => {
 
     // Interactive setup
     await interactiveSetup();
-
-    // Run login script
-    console.log('\n🔐 Running login script...\n');
-    try {
-        execSync('pnpm run login', { stdio: 'inherit' });
-        console.log('\n✅ Login completed\n');
-    } catch (error) {
-        console.error('\n❌ Login script failed. Continuing anyway...\n');
-    }
 
     //Register plugins before launching browser
     puppeteer.use(StealthPlugin());
