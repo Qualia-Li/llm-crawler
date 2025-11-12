@@ -15,14 +15,16 @@ Supported platforms: DeepSeek, Kimi, Doubao (豆包), Yuanbao (元宝), Quark (�
 
 ### Main Operations
 
-- **`pnpm run run`** - Start the file-based crawler (legacy mode)
-  - Uses data from `question-list.ts`
-  - Saves results to local files
-
-- **`pnpm run run:db`** - Start the database-driven crawler
+- **`pnpm run:db`** - Start the database-driven crawler (RECOMMENDED)
   - Loads keywords from Supabase database
   - Automatically saves answers to database
   - Supports scheduled queries with configurable intervals
+  - Use this for production
+
+- **`pnpm run`** - Start the file-based crawler (LEGACY - deprecated)
+  - Uses data from `question-list.ts`
+  - Saves results to local files
+  - Kept for backwards compatibility only
 
 - **`pnpm login`** - Open all platforms for manual login
   - Opens all 6 platforms in separate tabs
@@ -47,6 +49,7 @@ Supported platforms: DeepSeek, Kimi, Doubao (豆包), Yuanbao (元宝), Quark (�
 
 - **`pnpm clean:all`** - Clean answers for all platforms
 - **`pnpm clean:deepseek`** - Clean DeepSeek answers
+- **`pnpm clean:deepseek:legacy`** - Clean legacy DeepSeek answer patterns
 - **`pnpm clean:ernie`** - Clean 文心一言 answers
 - **`pnpm clean:doubao`** - Clean 豆包 answers
 - **`pnpm clean:yuanbao`** - Clean 元宝 answers
