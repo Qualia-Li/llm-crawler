@@ -1,6 +1,6 @@
 import * as http from "node:http";
 import * as url from "node:url";
-import { loadKeywordsToQuery, buildTaskQueue, getQueueStatus } from "./loader";
+import { loadKeywordsToQuery, buildTaskQueue, getQueueStatus, getCompletedQuestions } from "./loader";
 
 const PORT = 8081;
 
@@ -47,17 +47,26 @@ async function getQueueData(targetDate?: string) {
     const totalExpected = Object.values(platformStats).reduce((sum, s) => sum + s.total, 0);
     const totalCompleted = totalExpected - totalPending;
 
-    // Get detailed unfinished questions
-    const unfinishedQuestions: Array<{platform: string, keyword: string, isExtended: boolean}> = [];
+    // Get detailed unfinished questions by platform
+    const unfinishedByPlatform: Record<string, Array<{keyword: string, isExtended: boolean}>> = {};
     for (const [platform, tasks] of Object.entries(taskQueues)) {
-        for (const task of tasks) {
-            const questionText = task.extendedKeyword || task.coreKeyword;
-            unfinishedQuestions.push({
-                platform,
-                keyword: questionText,
-                isExtended: !!task.extendedKeyword
-            });
+        unfinishedByPlatform[platform] = tasks.map(task => ({
+            keyword: task.extendedKeyword || task.coreKeyword,
+            isExtended: !!task.extendedKeyword
+        }));
+    }
+
+    // Get completed questions
+    const completedQuestions = await getCompletedQuestions(keywords);
+    const completedByPlatform: Record<string, Array<{keyword: string, isExtended: boolean}>> = {};
+    for (const q of completedQuestions) {
+        if (!completedByPlatform[q.platform]) {
+            completedByPlatform[q.platform] = [];
         }
+        completedByPlatform[q.platform].push({
+            keyword: q.extendedKeyword || q.coreKeyword,
+            isExtended: !!q.extendedKeyword
+        });
     }
 
     return {
@@ -67,34 +76,32 @@ async function getQueueData(targetDate?: string) {
         totalCompleted,
         totalExpected,
         dateUsed,
-        unfinishedQuestions
+        unfinishedByPlatform,
+        completedByPlatform
     };
 }
 
-function generateUnfinishedList(questions: Array<{platform: string, keyword: string, isExtended: boolean}>) {
-    // Group by platform
-    const grouped: Record<string, Array<{keyword: string, isExtended: boolean}>> = {};
-    for (const q of questions) {
-        if (!grouped[q.platform]) {
-            grouped[q.platform] = [];
-        }
-        grouped[q.platform].push({ keyword: q.keyword, isExtended: q.isExtended });
-    }
-
-    let html = '';
-    for (const [platform, items] of Object.entries(grouped)) {
-        html += `
-            <div class="platform-group">
-                <h3>${platform} (${items.length} pending)</h3>
-                ${items.map(item => `
-                    <div class="question-item ${item.isExtended ? 'extended' : ''}">
+function generatePlatformDetails(platform: string, completed: Array<{keyword: string, isExtended: boolean}>, unfinished: Array<{keyword: string, isExtended: boolean}>) {
+    return `
+        <div id="details-${platform}" class="platform-details">
+            <div class="details-section">
+                <h4 style="color: #28a745; margin-bottom: 10px;">✓ Completed (${completed.length})</h4>
+                ${completed.length > 0 ? completed.map(item => `
+                    <div class="question-item completed-item ${item.isExtended ? 'extended' : ''}">
                         ${item.keyword}
                     </div>
-                `).join('')}
+                `).join('') : '<p style="color: #6c757d; font-size: 0.9em;">No completed questions</p>'}
             </div>
-        `;
-    }
-    return html || '<p style="text-align: center; color: #6c757d;">No unfinished questions</p>';
+            <div class="details-section" style="margin-top: 20px;">
+                <h4 style="color: #dc3545; margin-bottom: 10px;">⚠ Pending (${unfinished.length})</h4>
+                ${unfinished.length > 0 ? unfinished.map(item => `
+                    <div class="question-item pending-item ${item.isExtended ? 'extended' : ''}">
+                        ${item.keyword}
+                    </div>
+                `).join('') : '<p style="color: #6c757d; font-size: 0.9em;">No pending questions</p>'}
+            </div>
+        </div>
+    `;
 }
 
 function generateHTML(data: any) {
@@ -336,6 +343,42 @@ function generateHTML(data: any) {
             border-left-color: #764ba2;
             background: #f3f0f7;
         }
+        .platform-details {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .platform-details.show {
+            display: block;
+        }
+        .details-section h4 {
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+        .completed-item {
+            opacity: 0.8;
+            border-left-color: #28a745 !important;
+        }
+        .pending-item {
+            border-left-color: #dc3545 !important;
+        }
+        .details-btn {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.2s;
+        }
+        .details-btn:hover {
+            background: #764ba2;
+        }
     </style>
 </head>
 <body>
@@ -382,11 +425,15 @@ function generateHTML(data: any) {
                         <th>Pending</th>
                         <th>Total</th>
                         <th>Progress</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     ${data.status.map((s: any) => {
                         const progress = parseFloat(s.percentage);
+                        const completed = data.completedByPlatform[s.platform] || [];
+                        const unfinished = data.unfinishedByPlatform[s.platform] || [];
+                        const detailsHtml = generatePlatformDetails(s.platform, completed, unfinished);
 
                         return `
                         <tr>
@@ -401,20 +448,19 @@ function generateHTML(data: any) {
                                     </div>
                                 </div>
                             </td>
+                            <td style="text-align: center;">
+                                <button class="details-btn" onclick="toggleDetails('${s.platform}')">Show Details</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" style="padding: 0;">
+                                ${detailsHtml}
+                            </td>
                         </tr>
                         `;
                     }).join('')}
                 </tbody>
             </table>
-        </div>
-
-        <div class="unfinished-section">
-            <div class="unfinished-toggle">
-                <button onclick="toggleUnfinished()">Show Unfinished Questions (${data.totalPending})</button>
-            </div>
-            <div id="unfinishedList" class="unfinished-list">
-                ${generateUnfinishedList(data.unfinishedQuestions)}
-            </div>
         </div>
 
         <div class="refresh-note">
@@ -433,15 +479,25 @@ function generateHTML(data: any) {
             }
         }
 
-        function toggleUnfinished() {
-            const list = document.getElementById('unfinishedList');
-            const button = event.target;
-            if (list.classList.contains('show')) {
-                list.classList.remove('show');
-                button.textContent = 'Show Unfinished Questions (${data.totalPending})';
+        function toggleDetails(platform) {
+            const details = document.getElementById('details-' + platform);
+            const buttons = document.querySelectorAll('.details-btn');
+
+            // Find the button for this platform
+            let currentButton = null;
+            buttons.forEach(btn => {
+                if (btn.textContent.includes('Details') &&
+                    btn.closest('tr').querySelector('strong').textContent === platform) {
+                    currentButton = btn;
+                }
+            });
+
+            if (details.classList.contains('show')) {
+                details.classList.remove('show');
+                if (currentButton) currentButton.textContent = 'Show Details';
             } else {
-                list.classList.add('show');
-                button.textContent = 'Hide Unfinished Questions';
+                details.classList.add('show');
+                if (currentButton) currentButton.textContent = 'Hide Details';
             }
         }
 

@@ -18,6 +18,14 @@ export interface TaskQueue {
     }[];
 }
 
+export interface CompletedQuestion {
+    keywordId: string;
+    coreKeyword: string;
+    extendedKeyword: string | null;
+    platform: string;
+    dateQueried: string;
+}
+
 // Platforms to skip
 const SKIP_PLATFORMS = ['ChatGPT', 'Google AI Overview', 'Perplexity'];
 
@@ -137,4 +145,42 @@ export function getQueueStatus(queue: TaskQueue): { platform: string; count: num
         platform,
         count: tasks.length
     }));
+}
+
+/**
+ * Get completed questions for a specific date
+ */
+export async function getCompletedQuestions(keywords: KeywordTask[]): Promise<CompletedQuestion[]> {
+    const completed: CompletedQuestion[] = [];
+
+    for (const keyword of keywords) {
+        const { keywordId, coreKeyword, platforms, dateQueried } = keyword;
+
+        // Get existing answers for this keyword and date
+        const { data: existingAnswers, error } = await supabase
+            .from('answers')
+            .select('platform, extended_keyword')
+            .eq('keyword_id', keywordId)
+            .eq('date_queried', dateQueried);
+
+        if (error || !existingAnswers) continue;
+
+        for (const answer of existingAnswers) {
+            // Normalize platform name
+            const normalizedPlatform = normalizePlatformName(answer.platform);
+
+            // Only include if platform is in the keyword's platform list
+            if (platforms.includes(normalizedPlatform as any)) {
+                completed.push({
+                    keywordId,
+                    coreKeyword,
+                    extendedKeyword: answer.extended_keyword,
+                    platform: normalizedPlatform,
+                    dateQueried
+                });
+            }
+        }
+    }
+
+    return completed;
 }
