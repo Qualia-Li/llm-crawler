@@ -1,4 +1,4 @@
-import {engines, Engines} from "@/src/engines/engines";
+import {engines, Engines, initializeEngines} from "@/src/engines/engines";
 import {save} from "@/src/utils/save";
 import {myStealth} from "@/src/engines/myStealth";
 import {pure} from "@/src/utils/pureHTML";
@@ -52,7 +52,13 @@ export const QuestionLoop = async () => {
     mapQuestionsToTasks();
     //console.log(tasks)
 
-    for (const platformsKey in engines) {
+    // Initialize all engines for non-DB mode
+    const allEngines: Engines[] = ["deepseek", "夸克", "kimi", "豆包", "元宝", "文心一言"];
+    console.log('\n🔧 Initializing browser pages for all platforms...');
+    await initializeEngines(allEngines);
+    console.log('✅ All engines initialized\n');
+
+    for (const platformsKey in tasks) {
         /*await */ //no await as we'd like it to run parallelly
         const plat = platformsKey as Engines
         perEngine(plat).catch(e => {

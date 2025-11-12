@@ -1,9 +1,21 @@
-const tmpPage = await browser.newPage()
-tmpPage.goto("about:blank")
+let tmpPage: any = null;
+
+const getTmpPage = async () => {
+    if (!tmpPage) {
+        tmpPage = await globalThis.browser.newPage();
+
+        // Set a smaller viewport to make it less intrusive
+        await tmpPage.setViewport({ width: 400, height: 300 });
+
+        await tmpPage.goto("about:blank");
+    }
+    return tmpPage;
+};
 
 export const pure = async (html: string) => {
-    await tmpPage.evaluate("document.body.innerHTML=" + `"${html}"`)
-    await tmpPage.evaluate(() => {
+    const page = await getTmpPage();
+    await page.evaluate("document.body.innerHTML=" + `"${html}"`)
+    await page.evaluate(() => {
         // 获取页面中所有元素
         const allElements = document.querySelectorAll('*');
 
@@ -19,11 +31,11 @@ export const pure = async (html: string) => {
             });
         });
     })
-    await tmpPage.evaluate(function (){
+    await page.evaluate(function (){
         document.querySelectorAll("style,script").forEach(e=>e.remove())
     })
 
-    return tmpPage.evaluate(() => {
+    return page.evaluate(() => {
         return document.body.innerHTML;
     })
 }

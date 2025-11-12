@@ -1,4 +1,4 @@
-import { engines, Engines } from "@/src/engines/engines";
+import { engines, Engines, initializeEngines } from "@/src/engines/engines";
 import { loadKeywordsToQuery, buildTaskQueue, getQueueStatus, TaskQueue } from "@/src/utils/Database/loader";
 import { saveAnswer, answerExists } from "@/src/utils/Database/saver";
 import { myStealth } from "@/src/engines/myStealth";
@@ -93,7 +93,12 @@ export const QuestionLoopDB = async (targetDate?: string) => {
     await loadTasks(targetDate);
 
     // Get selected platforms (or all if not specified)
-    const selectedPlatforms = globalThis.selectedPlatforms || Object.keys(engines) as Engines[];
+    const selectedPlatforms = globalThis.selectedPlatforms || ["deepseek", "夸克", "kimi", "豆包", "元宝", "文心一言"] as Engines[];
+
+    // Initialize only the selected engines
+    console.log('\n🔧 Initializing browser pages for selected platforms...');
+    await initializeEngines(selectedPlatforms);
+    console.log('✅ All engines initialized\n');
 
     // Start processing each platform in parallel
     for (const plat of selectedPlatforms) {
