@@ -1,6 +1,8 @@
 ## user
 user-data
+results.json
 results*.json
+data/result.json
 .env
 .env.local
 sql/
