@@ -197,4 +197,11 @@ export const QuestionLoopDB = async (targetDate?: string) => {
     // Wait for user to press any key
     await pressAnyKey('Press any key to end...');
     console.log(); // Add newline after key press
+
+    // Kill caffeinate process if it's running
+    if (globalThis.caffeinate) {
+        console.log('☕ Stopping caffeinate...');
+        globalThis.caffeinate.kill();
+        console.log('✅ Mac can sleep again\n');
+    }
 };

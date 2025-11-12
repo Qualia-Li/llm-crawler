@@ -1,4 +1,6 @@
 import puppeteer from "puppeteer-extra";
+import { spawn } from "child_process";
+import type { ChildProcess } from "child_process";
 
 // Add stealth plugin
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
@@ -12,6 +14,7 @@ declare global {
     var targetDate: string;
     var selectedPlatforms: Engines[];
     var proxyAuth: { username: string; password: string } | null;
+    var caffeinate: ChildProcess | null;
 }
 
 /**
@@ -109,6 +112,29 @@ const main = async () => {
 
     // Interactive setup
     await interactiveSetup();
+
+    // Start caffeinate to keep Mac awake (macOS only)
+    if (process.platform === 'darwin') {
+        console.log('☕ Starting caffeinate to keep Mac awake...');
+        globalThis.caffeinate = spawn('caffeinate', ['-d']);
+        console.log('✅ Mac will stay awake during execution\n');
+
+        // Ensure caffeinate is killed on process exit
+        const cleanup = () => {
+            if (globalThis.caffeinate) {
+                globalThis.caffeinate.kill();
+            }
+        };
+        process.on('exit', cleanup);
+        process.on('SIGINT', () => {
+            cleanup();
+            process.exit(0);
+        });
+        process.on('SIGTERM', () => {
+            cleanup();
+            process.exit(0);
+        });
+    }
 
     //Register plugins before launching browser
     puppeteer.use(StealthPlugin());
