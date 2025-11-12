@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config({ path: '.env.local' });
 
-// Create connection pool using the same config as your project
+// Create connection pool
 let pool: Pool;
 
 if (process.env.DB_HOST) {
@@ -30,7 +30,7 @@ if (process.env.DB_HOST) {
     });
 }
 
-async function insertAnswers() {
+async function insertHtmlAnswers() {
     const client = await pool.connect();
 
     try {
@@ -40,6 +40,7 @@ async function insertAnswers() {
         console.log(`Found ${data.length} core keywords\n`);
 
         let totalInserted = 0;
+        let totalUpdated = 0;
         let totalSkipped = 0;
         let errors = 0;
 
@@ -75,29 +76,30 @@ async function insertAnswers() {
                 }
 
                 let platformInserted = 0;
-                let platformSkipped = 0;
+                let platformUpdated = 0;
 
                 // First answer is for the core keyword
                 const coreAnswer = answers[0];
                 if (coreAnswer && coreAnswer.trim() !== '') {
                     try {
-                        const existsQuery = await client.query(
-                            `SELECT id FROM answers
-                             WHERE keyword_id = $1 AND platform = $2
-                             AND core_keyword = $3 AND extended_keyword IS NULL`,
-                            [keywordId, platform, coreKeyword]
+                        // Use UPSERT to replace/insert with HTML format
+                        const result = await client.query(
+                            `INSERT INTO answers
+                             (keyword_id, core_keyword, extended_keyword, platform, answer, answer_format, date_queried)
+                             VALUES ($1, $2, NULL, $3, $4, 'html', CURRENT_DATE)
+                             ON CONFLICT (core_keyword, platform, answer_format, date_queried)
+                             WHERE extended_keyword IS NULL
+                             DO UPDATE SET
+                               answer = EXCLUDED.answer,
+                               updated_at = CURRENT_TIMESTAMP
+                             RETURNING (xmax = 0) AS inserted`,
+                            [keywordId, coreKeyword, platform, coreAnswer]
                         );
 
-                        if (existsQuery.rows.length === 0) {
-                            await client.query(
-                                `INSERT INTO answers
-                                 (keyword_id, core_keyword, extended_keyword, platform, answer)
-                                 VALUES ($1, $2, NULL, $3, $4)`,
-                                [keywordId, coreKeyword, platform, coreAnswer]
-                            );
+                        if (result.rows[0].inserted) {
                             platformInserted++;
                         } else {
-                            platformSkipped++;
+                            platformUpdated++;
                         }
                     } catch (err: any) {
                         console.error(`    ❌ Error: ${err.message}`);
@@ -115,23 +117,24 @@ async function insertAnswers() {
                     }
 
                     try {
-                        const existsQuery = await client.query(
-                            `SELECT id FROM answers
-                             WHERE keyword_id = $1 AND platform = $2
-                             AND core_keyword = $3 AND extended_keyword = $4`,
-                            [keywordId, platform, coreKeyword, extendedKeyword]
+                        // Use UPSERT to replace/insert with HTML format
+                        const result = await client.query(
+                            `INSERT INTO answers
+                             (keyword_id, core_keyword, extended_keyword, platform, answer, answer_format, date_queried)
+                             VALUES ($1, $2, $3, $4, $5, 'html', CURRENT_DATE)
+                             ON CONFLICT (extended_keyword, platform, answer_format, date_queried)
+                             WHERE extended_keyword IS NOT NULL
+                             DO UPDATE SET
+                               answer = EXCLUDED.answer,
+                               updated_at = CURRENT_TIMESTAMP
+                             RETURNING (xmax = 0) AS inserted`,
+                            [keywordId, coreKeyword, extendedKeyword, platform, answer]
                         );
 
-                        if (existsQuery.rows.length === 0) {
-                            await client.query(
-                                `INSERT INTO answers
-                                 (keyword_id, core_keyword, extended_keyword, platform, answer)
-                                 VALUES ($1, $2, $3, $4, $5)`,
-                                [keywordId, coreKeyword, extendedKeyword, platform, answer]
-                            );
+                        if (result.rows[0].inserted) {
                             platformInserted++;
                         } else {
-                            platformSkipped++;
+                            platformUpdated++;
                         }
                     } catch (err: any) {
                         console.error(`    ❌ Error for "${extendedKeyword}": ${err.message}`);
@@ -140,8 +143,8 @@ async function insertAnswers() {
                 }
 
                 totalInserted += platformInserted;
-                totalSkipped += platformSkipped;
-                console.log(`    ${platform}: +${platformInserted} (${platformSkipped} duplicates)`);
+                totalUpdated += platformUpdated;
+                console.log(`    ${platform}: +${platformInserted} new, ~${platformUpdated} updated`);
             }
         }
 
@@ -150,7 +153,8 @@ async function insertAnswers() {
 
         console.log('\n' + '='.repeat(80));
         console.log('✅ Import completed!');
-        console.log(`   Inserted: ${totalInserted}`);
+        console.log(`   New records: ${totalInserted}`);
+        console.log(`   Updated records: ${totalUpdated}`);
         console.log(`   Skipped: ${totalSkipped}`);
         console.log(`   Errors: ${errors}`);
         console.log('='.repeat(80));
@@ -166,4 +170,4 @@ async function insertAnswers() {
 }
 
 // Run the import
-insertAnswers().catch(console.error);
+insertHtmlAnswers().catch(console.error);
