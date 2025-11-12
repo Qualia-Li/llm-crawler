@@ -1,14 +1,75 @@
-# DS-Grub
+# LLM Crawler
 
-A tool to automatically get the answer from deepseek for GEO analyze.
+A tool to automatically get answers from multiple LLM platforms for GEO/AEO analysis.
 
-## Usage
+Supported platforms: DeepSeek, Kimi, Doubao (豆包), Yuanbao (元宝), Quark (夸克), Ernie (文心一言)
 
-1.``pnpm i`` Modify browser path in src/index.ts  
-2.``pnpm add -g tsx``   
-3.``pnpm run run`` then manually login quickly.    
-4.``pnpm run run``     
-5.``pnpm run result:dev``then open <localhost:5173> to see the result.
+## Setup
+
+1. Install dependencies: `pnpm i`
+2. Install tsx globally: `pnpm add -g tsx`
+3. Configure environment variables in `.env.local`
+4. (Optional) Set browser path in environment variables
+
+## Available Commands
+
+### Main Operations
+
+- **`pnpm run run`** - Start the file-based crawler (legacy mode)
+  - Uses data from `question-list.ts`
+  - Saves results to local files
+
+- **`pnpm run run:db`** - Start the database-driven crawler
+  - Loads keywords from Supabase database
+  - Automatically saves answers to database
+  - Supports scheduled queries with configurable intervals
+
+- **`pnpm login`** - Open all platforms for manual login
+  - Opens all 6 platforms in separate tabs
+  - Wait for you to log in to each platform
+  - Sessions are saved automatically for future runs
+  - Use this when platform sessions expire
+
+### Queue Management
+
+- **`pnpm queue`** - Show queue status in terminal
+  - Displays pending questions per platform
+  - Shows example pending questions
+
+- **`pnpm queue:web`** - Open web-based queue dashboard
+  - Access at http://localhost:8081
+  - View detailed metrics and progress
+  - Filter by date
+  - Expand to see pending and completed questions
+  - Auto-refreshes every 30 seconds
+
+### Data Cleaning
+
+- **`pnpm clean:all`** - Clean answers for all platforms
+- **`pnpm clean:deepseek`** - Clean DeepSeek answers
+- **`pnpm clean:ernie`** - Clean 文心一言 answers
+- **`pnpm clean:doubao`** - Clean 豆包 answers
+- **`pnpm clean:yuanbao`** - Clean 元宝 answers
+- **`pnpm clean:kimi`** - Clean Kimi answers
+
+### Data Management
+
+- **`pnpm reinsert:deepseek`** - Re-insert cleaned DeepSeek answers
+
+## Quick Start
+
+### First Time Setup
+
+1. Install dependencies: `pnpm i`
+2. Log in to all platforms: `pnpm login`
+3. Manually log in to each platform in the opened browser tabs
+4. Close the browser when done
+
+### Daily Usage
+
+1. Check queue status: `pnpm queue` or `pnpm queue:web`
+2. Start crawler: `pnpm run:db`
+3. Monitor progress on the queue dashboard
 
 ## Licence
 MIT  
