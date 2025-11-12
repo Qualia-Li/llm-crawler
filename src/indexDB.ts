@@ -2,13 +2,15 @@ import puppeteer from "puppeteer-extra";
 
 // Add stealth plugin
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import { askDate, confirm } from "./utils/prompt";
+import { askDate, confirm, askPlatforms } from "./utils/prompt";
 import { loadKeywordsToQuery, buildTaskQueue, getQueueSummary } from "./utils/Database/loader";
 import { parseProxyUrl } from "./utils/proxyConfig";
+import { Engines } from "./engines/engines";
 
 declare global {
     var browser: import('puppeteer').Browser;
     var targetDate: string;
+    var selectedPlatforms: Engines[];
     var proxyAuth: { username: string; password: string } | null;
 }
 
@@ -25,7 +27,17 @@ const interactiveSetup = async () => {
 
     console.log(`\n📅 Target Date: ${targetDate}\n`);
 
-    // Step 2: Load keywords and build queue
+    // Step 2: Ask for platform selection
+    const allPlatforms: Engines[] = ["deepseek", "夸克", "kimi", "豆包", "元宝", "文心一言"];
+    const selectedPlatforms = await askPlatforms(allPlatforms);
+    globalThis.selectedPlatforms = selectedPlatforms;
+
+    if (selectedPlatforms.length === 0) {
+        console.log('\n❌ No platforms selected. Exiting.');
+        process.exit(0);
+    }
+
+    // Step 3: Load keywords and build queue
     console.log('📊 Loading tasks from database...');
     const keywords = await loadKeywordsToQuery(targetDate);
 
@@ -39,19 +51,35 @@ const interactiveSetup = async () => {
     const taskQueues = await buildTaskQueue(keywords);
     const summary = await getQueueSummary(keywords, taskQueues);
 
-    // Step 3: Display summary
+    // Filter summary to only show selected platforms
+    const filteredPlatformStats = summary.platformStats.filter(
+        stat => selectedPlatforms.includes(stat.platform as Engines)
+    );
+    const filteredPendingQuestions = filteredPlatformStats.reduce((sum, stat) => sum + stat.pending, 0);
+    const filteredCompletedQuestions = filteredPlatformStats.reduce((sum, stat) => sum + stat.completed, 0);
+    const filteredTotalQuestions = filteredPlatformStats.reduce((sum, stat) => sum + stat.total, 0);
+
+    // Step 4: Display summary
     console.log('═'.repeat(80));
     console.log('📋 QUERY SUMMARY');
     console.log('═'.repeat(80));
     console.log(`Total Core Keywords      : ${summary.totalKeywords}`);
-    console.log(`Total Questions     : ${summary.totalQuestions}`);
-    console.log(`✅ Completed        : ${summary.completedQuestions} (${((summary.completedQuestions / summary.totalQuestions) * 100).toFixed(1)}%)`);
-    console.log(`⏳ Pending          : ${summary.pendingQuestions} (${((summary.pendingQuestions / summary.totalQuestions) * 100).toFixed(1)}%)`);
+    console.log(`Total Questions     : ${filteredTotalQuestions}`);
+
+    const completedPercent = filteredTotalQuestions > 0
+        ? ((filteredCompletedQuestions / filteredTotalQuestions) * 100).toFixed(1)
+        : '0.0';
+    const pendingPercent = filteredTotalQuestions > 0
+        ? ((filteredPendingQuestions / filteredTotalQuestions) * 100).toFixed(1)
+        : '0.0';
+
+    console.log(`✅ Completed        : ${filteredCompletedQuestions} (${completedPercent}%)`);
+    console.log(`⏳ Pending          : ${filteredPendingQuestions} (${pendingPercent}%)`);
     console.log('═'.repeat(80));
     console.log('\n📊 Platform Breakdown:');
     console.log('─'.repeat(80));
 
-    for (const stat of summary.platformStats) {
+    for (const stat of filteredPlatformStats) {
         const percentComplete = ((stat.completed / stat.total) * 100).toFixed(1);
         console.log(
             `${stat.platform.padEnd(15)} : ` +
@@ -62,7 +90,7 @@ const interactiveSetup = async () => {
     }
     console.log('─'.repeat(80));
 
-    // Step 4: Ask for confirmation
+    // Step 5: Ask for confirmation
     console.log();
     const shouldContinue = await confirm('🚀 Start querying?');
 

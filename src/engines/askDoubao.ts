@@ -9,6 +9,9 @@ export class askDoubao extends BaseEngine {
         // Navigate to Doubao
         await this.page.goto('https://www.doubao.com/chat/', {waitUntil: 'networkidle2'});
 
+        // Wait for login if needed
+        await this.waitForLogin();
+
         // Click the input area
         const inputSelector = '[data-testid="chat_input_input"]';
         await this.page.waitForSelector(inputSelector);

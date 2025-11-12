@@ -59,3 +59,34 @@ export async function askDate(defaultDate: string): Promise<string> {
 
     return answer;
 }
+
+/**
+ * Ask for platform selection
+ * Returns array of selected platforms
+ */
+export async function askPlatforms<T extends string>(platforms: T[]): Promise<T[]> {
+    console.log('\n📱 Platform Selection:');
+    console.log('─'.repeat(80));
+
+    // Ask if user wants all platforms
+    const allAnswer = await question('Select ALL platforms? Type "ALL" to include all, or press Enter to select individually: ');
+
+    if (allAnswer.toUpperCase() === 'ALL') {
+        console.log('✅ All platforms selected\n');
+        return platforms;
+    }
+
+    // Ask for each platform individually
+    const selected: T[] = [];
+
+    for (const platform of platforms) {
+        const answer = await confirm(`Include ${platform}?`);
+        if (answer) {
+            selected.push(platform);
+        }
+    }
+
+    console.log(`\n✅ Selected ${selected.length}/${platforms.length} platforms: ${selected.join(', ')}\n`);
+
+    return selected;
+}

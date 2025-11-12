@@ -92,9 +92,11 @@ export const QuestionLoopDB = async (targetDate?: string) => {
     // Load tasks from database
     await loadTasks(targetDate);
 
+    // Get selected platforms (or all if not specified)
+    const selectedPlatforms = globalThis.selectedPlatforms || Object.keys(engines) as Engines[];
+
     // Start processing each platform in parallel
-    for (const platformKey in engines) {
-        const plat = platformKey as Engines;
+    for (const plat of selectedPlatforms) {
 
         // Start processing this platform
         perEngine(plat).catch(e => {

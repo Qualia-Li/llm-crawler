@@ -12,6 +12,9 @@ export class askErnie extends BaseEngine {
             waitUntil: 'networkidle0',
         });
 
+        // Wait for login if needed
+        await this.waitForLogin();
+
         // Wait answer;
         await this.page.waitForSelector('[class*="answer-container"]', {timeout: 50_000});
 

@@ -16,6 +16,9 @@ export class askYuanbao extends BaseEngine {
             waitUntil: 'domcontentloaded',
         });
 
+        // Wait for login if needed
+        await this.waitForLogin();
+
         // Type the question into the input area
         const inputSelector = '[contenteditable="true"]';
         await this.page.type(inputSelector, question);

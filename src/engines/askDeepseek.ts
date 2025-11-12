@@ -14,6 +14,9 @@ export class askDeepseek extends BaseEngine {
                 {waitUntil: "domcontentloaded"}
             );
 
+        // Wait for login if needed
+        await this.waitForLogin();
+
         // Click on the textarea using the most reliable selector
         await this.page.waitForSelector("textarea");
         await this.page.click("textarea",);

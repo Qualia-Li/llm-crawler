@@ -8,6 +8,9 @@ export class askKimi extends BaseEngine {
         // Navigate tpo kimi
         await this.page.goto('https://www.kimi.com/', {waitUntil: 'networkidle2'});
 
+        // Wait for login if needed
+        await this.waitForLogin();
+
         // Click input editor
         const inputSelector = 'div.chat-input-editor';
         await this.page.click(inputSelector);
