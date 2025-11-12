@@ -3,6 +3,7 @@ import { loadKeywordsToQuery, buildTaskQueue, getQueueStatus, TaskQueue } from "
 import { saveAnswer, answerExists } from "@/src/utils/Database/saver";
 import { myStealth } from "@/src/engines/myStealth";
 import { pure } from "@/src/utils/pureHTML";
+import { formatError } from "@/src/utils/errorFormatter";
 
 // Track task queues
 let taskQueues: TaskQueue = {};
@@ -73,8 +74,11 @@ const perEngine = async (plat: Engines) => {
                 answerFormat: 'md'
             });
 
+            // Success message
+            console.log(`✅ Saved ${plat} - ${questionText}`);
+
         } catch (error) {
-            console.error(`❌ Error processing ${plat} - ${questionText}:`, error);
+            console.error(`❌ Error processing ${plat} - ${questionText}: ${formatError(error)}`);
         }
     }
 
@@ -94,8 +98,7 @@ export const QuestionLoopDB = async (targetDate?: string) => {
 
         // Start processing this platform
         perEngine(plat).catch(e => {
-            console.error(`Engine:${plat} Error`);
-            console.error(e);
+            console.error(`❌ Engine ${plat} Error: ${formatError(e)}`);
         });
 
         // Anti-freeze mechanisms
@@ -103,7 +106,7 @@ export const QuestionLoopDB = async (targetDate?: string) => {
             // Periodically bring page to front
             setInterval(() => {
                 setTimeout(async() => {
-                    await engines[plat].page.bringToFront().catch(console.error);
+                    await engines[plat].page.bringToFront().catch(() => {});
                 }, Math.random() * 20);
             }, 20_000);
 
@@ -111,7 +114,10 @@ export const QuestionLoopDB = async (targetDate?: string) => {
             for (let i = 0; i < 10; i++) {
                 setInterval(() => {
                     setTimeout(async() => {
-                        await engines[plat].page.evaluate(myStealth).catch(console.error);
+                        await engines[plat].page.evaluate(myStealth).catch(() => {
+                            // Silently ignore "Execution context was destroyed" errors
+                            // These are expected during navigation
+                        });
                     }, Math.random() * 20);
                 }, 8_000);
             }
