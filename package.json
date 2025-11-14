@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "run": "tsx src/index.ts",
-    "run:db": "tsx src/indexDB.ts",
+    "run": "tsx src/indexDB.ts",
+    "run:custom": "tsx src/indexDB.ts --config=custom_keywords.json",
     "login": "tsx scripts/login_all.ts",
     "test_scrape": "tsx scripts/test_scrape.ts",
     "queue": "tsx scripts/show_queue_db.ts",
