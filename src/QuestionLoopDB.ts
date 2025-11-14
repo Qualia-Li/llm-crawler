@@ -8,6 +8,9 @@ import { pressAnyKey } from "@/src/utils/prompt";
 // Track task queues
 let taskQueues: TaskQueue = {};
 
+// Track start time
+let startTime: number = 0;
+
 // Statistics tracking
 interface PlatformStats {
     platform: Engines;
@@ -15,6 +18,24 @@ interface PlatformStats {
     succeeded: number;
     failed: number;
     skipped: number;
+}
+
+/**
+ * Format elapsed time in human-readable format
+ */
+function formatElapsedTime(startTime: number): string {
+    const elapsed = Date.now() - startTime;
+    const seconds = Math.floor(elapsed / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+
+    if (hours > 0) {
+        return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+    } else if (minutes > 0) {
+        return `${minutes}m ${seconds % 60}s`;
+    } else {
+        return `${seconds}s`;
+    }
 }
 
 /**
@@ -65,8 +86,9 @@ const perEngine = async (plat: Engines): Promise<PlatformStats> => {
         try {
             // Check if already exists (in case of race condition)
             if (await answerExists(keywordId, plat, extendedKeyword, dateQueried)) {
-                console.log(`⏭️  Skipping ${plat} - ${questionText} (already exists)`);
                 stats.skipped++;
+                console.log(`⏭️  Skipping ${plat} - ${questionText} (already exists)`);
+                console.log(`   📊 ${plat} Stats: ✅ ${stats.succeeded} saved | ❌ ${stats.failed} failed | ⏭️  ${stats.skipped} skipped | 📝 ${stats.total - stats.succeeded - stats.failed - stats.skipped} remaining | ⏱️  ${formatElapsedTime(startTime)}`);
                 continue;
             }
 
@@ -88,26 +110,47 @@ const perEngine = async (plat: Engines): Promise<PlatformStats> => {
                 answerFormat: 'html'
             });
 
-            // Success message
-            console.log(`✅ Saved ${plat} - ${questionText}`);
+            // Success message with stats
             stats.succeeded++;
+            console.log(`✅ Saved ${plat} - ${questionText}`);
+            console.log(`   📊 ${plat} Stats: ✅ ${stats.succeeded} saved | ❌ ${stats.failed} failed | ⏭️  ${stats.skipped} skipped | 📝 ${stats.total - stats.succeeded - stats.failed - stats.skipped} remaining | ⏱️  ${formatElapsedTime(startTime)}`);
 
         } catch (error) {
-            console.error(`❌ Error processing ${plat} - ${questionText}: ${formatError(error)}`);
             stats.failed++;
+            console.error(`❌ Error processing ${plat} - ${questionText}: ${formatError(error)}`);
+            console.log(`   📊 ${plat} Stats: ✅ ${stats.succeeded} saved | ❌ ${stats.failed} failed | ⏭️  ${stats.skipped} skipped | 📝 ${stats.total - stats.succeeded - stats.failed - stats.skipped} remaining | ⏱️  ${formatElapsedTime(startTime)}`);
         }
     }
 
-    console.log(`✅ Completed ${plat}\n`);
+    // Final summary
+    console.log(`\n✅ Completed ${plat}`);
+    console.log(`📊 Final Stats: ✅ ${stats.succeeded} saved | ❌ ${stats.failed} failed | ⏭️  ${stats.skipped} skipped | Total: ${stats.total} | ⏱️  ${formatElapsedTime(startTime)}\n`);
     return stats;
 };
 
 /**
  * Main question loop - database version
  */
-export const QuestionLoopDB = async (targetDate?: string) => {
-    // Load tasks from database
-    await loadTasks(targetDate);
+export const QuestionLoopDB = async (targetDate?: string, preloadedTaskQueues?: TaskQueue) => {
+    // Initialize start time
+    startTime = Date.now();
+
+    // Load tasks from database or use preloaded queues
+    if (preloadedTaskQueues) {
+        console.log('📊 Using preloaded task queues...\n');
+        taskQueues = preloadedTaskQueues;
+
+        const status = getQueueStatus(taskQueues);
+        console.log('📋 Queue Status:');
+        console.log('='.repeat(80));
+        for (const { platform, count } of status) {
+            console.log(`${platform.padEnd(15)} : ${count} questions pending`);
+        }
+        console.log('='.repeat(80));
+        console.log(`Total Pending: ${status.reduce((sum, s) => sum + s.count, 0)} questions\n`);
+    } else {
+        await loadTasks(targetDate);
+    }
 
     // Get selected platforms (or all if not specified)
     const selectedPlatforms = globalThis.selectedPlatforms || ["deepseek", "夸克", "kimi", "豆包", "元宝", "文心一言"] as Engines[];
@@ -191,6 +234,7 @@ export const QuestionLoopDB = async (targetDate?: string) => {
 
     console.log('═'.repeat(80));
     console.log(`Total: ✅ ${totalSucceeded} succeeded | ❌ ${totalFailed} failed | ⏭️  ${totalSkipped} skipped`);
+    console.log(`⏱️  Total Time: ${formatElapsedTime(startTime)}`);
     console.log('═'.repeat(80));
     console.log();
 
