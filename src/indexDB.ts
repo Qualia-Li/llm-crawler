@@ -5,7 +5,7 @@ import type { ChildProcess } from "child_process";
 // Add stealth plugin
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import { askDate, confirm, askPlatforms } from "./utils/prompt";
-import { loadKeywordsToQuery, buildTaskQueue, getQueueSummary } from "./utils/Database/loader";
+import { loadKeywordsToQuery, loadCustomKeywords, buildTaskQueue, getQueueSummary } from "./utils/Database/loader";
 import { parseProxyUrl } from "./utils/proxyConfig";
 import { Engines } from "./engines/engines";
 
@@ -19,37 +19,67 @@ declare global {
 
 /**
  * Interactive setup: Ask for date and show summary
+ * Returns the task queues to be used by QuestionLoopDB
  */
 const interactiveSetup = async () => {
     console.log('\n🤖 LLM Crawler - Database Mode\n');
 
+    // Check for custom config file and yes flag
+    const configArg = process.argv.find(arg => arg.startsWith('--config='));
+    const configPath = configArg?.split('=')[1];
+    // Auto-yes if using custom config or explicit --yes flag
+    const autoYes = !!configPath || process.argv.includes('--yes') || process.argv.includes('-y');
+
     // Step 1: Ask for target date
     const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-    const targetDate = await askDate(today);
+    const targetDate = autoYes ? today : await askDate(today);
     globalThis.targetDate = targetDate;
 
     console.log(`\n📅 Target Date: ${targetDate}\n`);
 
-    // Step 2: Ask for platform selection
-    const allPlatforms: Engines[] = ["deepseek", "夸克", "kimi", "豆包", "元宝", "文心一言"];
-    const selectedPlatforms = await askPlatforms(allPlatforms);
+    let keywords;
+    let selectedPlatforms: Engines[];
+
+    if (configPath) {
+        // Load from custom config file
+        console.log(`📄 Loading custom config from: ${configPath}`);
+        keywords = await loadCustomKeywords(configPath, targetDate);
+
+        if (keywords.length === 0) {
+            console.log('❌ No keywords loaded from config file. Exiting.');
+            process.exit(0);
+        }
+
+        // Collect all unique platforms from custom config
+        const platformSet = new Set<Engines>();
+        keywords.forEach(k => k.platforms.forEach(p => platformSet.add(p)));
+        selectedPlatforms = Array.from(platformSet);
+
+        console.log(`Loaded ${keywords.length} custom keyword configurations`);
+        console.log(`Platforms from config: ${selectedPlatforms.join(', ')}\n`);
+    } else {
+        // Normal mode: ask for platform selection
+        const allPlatforms: Engines[] = ["deepseek", "夸克", "kimi", "豆包", "元宝", "文心一言"];
+        selectedPlatforms = await askPlatforms(allPlatforms);
+
+        if (selectedPlatforms.length === 0) {
+            console.log('\n❌ No platforms selected. Exiting.');
+            process.exit(0);
+        }
+
+        // Load keywords from database
+        console.log('📊 Loading tasks from database...');
+        keywords = await loadKeywordsToQuery(targetDate);
+
+        if (keywords.length === 0) {
+            console.log('✅ No keywords need to be queried for this date.');
+            process.exit(0);
+        }
+
+        console.log(`Found ${keywords.length} keywords to query\n`);
+    }
+
     globalThis.selectedPlatforms = selectedPlatforms;
-
-    if (selectedPlatforms.length === 0) {
-        console.log('\n❌ No platforms selected. Exiting.');
-        process.exit(0);
-    }
-
-    // Step 3: Load keywords and build queue
-    console.log('📊 Loading tasks from database...');
-    const keywords = await loadKeywordsToQuery(targetDate);
-
-    if (keywords.length === 0) {
-        console.log('✅ No keywords need to be queried for this date.');
-        process.exit(0);
-    }
-
-    console.log(`Found ${keywords.length} keywords to query\n`);
 
     const taskQueues = await buildTaskQueue(keywords);
     const summary = await getQueueSummary(keywords, taskQueues);
@@ -95,14 +125,23 @@ const interactiveSetup = async () => {
 
     // Step 5: Ask for confirmation
     console.log();
-    const shouldContinue = await confirm('🚀 Start querying?');
+    let shouldContinue = true;
 
-    if (!shouldContinue) {
-        console.log('\n❌ Cancelled by user.');
-        process.exit(0);
+    if (autoYes) {
+        console.log('🚀 Starting crawler...\n');
+    } else {
+        shouldContinue = await confirm('🚀 Start querying?');
+
+        if (!shouldContinue) {
+            console.log('\n❌ Cancelled by user.');
+            process.exit(0);
+        }
+
+        console.log('\n✅ Starting crawler...\n');
     }
 
-    console.log('\n✅ Starting crawler...\n');
+    // Return task queues for QuestionLoopDB
+    return taskQueues;
 };
 
 //Main
@@ -110,8 +149,8 @@ const main = async () => {
     //Load env
     await import("dotenv/config");
 
-    // Interactive setup
-    await interactiveSetup();
+    // Interactive setup - returns task queues for custom config mode
+    const customTaskQueues = await interactiveSetup();
 
     // Start caffeinate to keep Mac awake (macOS only)
     if (process.platform === 'darwin') {
@@ -170,7 +209,7 @@ const main = async () => {
 
     //Question Loop (Database Version)
     const {QuestionLoopDB} = await import("./QuestionLoopDB");
-    await QuestionLoopDB(globalThis.targetDate);
+    await QuestionLoopDB(globalThis.targetDate, customTaskQueues);
 };
 
 const retry = async (e = "Start" as any, retryCount = 0) => {

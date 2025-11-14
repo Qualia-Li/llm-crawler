@@ -1,0 +1,41 @@
+[
+  {
+    "coreKeyword": "万森男士发型设计",
+    "platforms": ["豆包"],
+    "extendedKeywords": [
+      "西安理发店推荐",
+      "西安理发店排名",
+      "西安理发店哪家理的好",
+      "西安理发店哪家口碑好"
+    ]
+  },
+  {
+    "coreKeyword": "初心留学",
+    "platforms": ["豆包"],
+    "extendedKeywords": [
+      "日本留学中介机构推荐",
+      "日本留学中介哪家好",
+      "日本留学中介排行榜",
+      "日本留学中介有哪些"
+    ]
+  },
+  {
+    "coreKeyword": "全景医学-上海全身体检",
+    "platforms": ["豆包", "deepseek"],
+    "extendedKeywords": [
+      "上海全身体检机构推荐",
+      "上海全身体检哪家好",
+      "上海全身体检选哪家",
+      "上海全身体检哪家专业"
+    ]
+  },
+  {
+    "coreKeyword": "全景医学-成都体检",
+    "platforms": ["deepseek"],
+    "extendedKeywords": [
+      "成都体检哪家专业",
+      "成都体检机构排行榜",
+      "成都体检机构选哪家"
+    ]
+  }
+]

@@ -1,5 +1,6 @@
 import { supabase } from './client';
 import { Engines } from '@/src/engines/engines';
+import { readFile } from 'fs/promises';
 
 export interface KeywordTask {
     keywordId: string;
@@ -7,6 +8,12 @@ export interface KeywordTask {
     extendedKeywords: string[];
     platforms: Engines[];
     dateQueried: string; // Format: YYYY-MM-DD
+}
+
+export interface CustomKeywordConfig {
+    coreKeyword: string;
+    platforms: Engines[];
+    extendedKeywords: string[];
 }
 
 export interface TaskQueue {
@@ -36,6 +43,88 @@ const PLATFORM_NAME_MAP: Record<string, string> = {
 
 function normalizePlatformName(platform: string): string {
     return PLATFORM_NAME_MAP[platform] || platform;
+}
+
+/**
+ * Load keywords from a custom config file
+ * @param configPath Path to JSON config file
+ * @param targetDate Target date for queries (YYYY-MM-DD format)
+ */
+export async function loadCustomKeywords(configPath: string, targetDate: string): Promise<KeywordTask[]> {
+    try {
+        const configContent = await readFile(configPath, 'utf-8');
+        const customConfigs: CustomKeywordConfig[] = JSON.parse(configContent);
+
+        const tasks: KeywordTask[] = [];
+
+        // Get the default client_id from existing keywords
+        const { data: existingKeywordData } = await supabase
+            .from('keywords')
+            .select('client_id')
+            .limit(1)
+            .single();
+
+        if (!existingKeywordData) {
+            console.error('No existing keywords found. Cannot determine client_id.');
+            return [];
+        }
+
+        const clientId = existingKeywordData.client_id;
+
+        for (const config of customConfigs) {
+            // Try to find existing keyword in database
+            const { data: existingKeyword } = await supabase
+                .from('keywords')
+                .select('id')
+                .eq('core_keyword', config.coreKeyword)
+                .single();
+
+            let keywordId: string;
+
+            if (existingKeyword) {
+                keywordId = existingKeyword.id;
+            } else {
+                // Create new keyword entry
+                const { data: newKeyword, error } = await supabase
+                    .from('keywords')
+                    .insert({
+                        core_keyword: config.coreKeyword,
+                        extended_keywords: config.extendedKeywords,
+                        platforms: config.platforms,
+                        next_queried: targetDate,
+                        client_id: clientId,
+                        interval_days: 1
+                    })
+                    .select('id')
+                    .single();
+
+                if (error || !newKeyword) {
+                    console.error(`Error creating keyword ${config.coreKeyword}:`, error);
+                    continue;
+                }
+
+                keywordId = newKeyword.id;
+            }
+
+            // Normalize platform names and filter
+            const normalizedPlatforms = config.platforms
+                .filter(p => !SKIP_PLATFORMS.includes(p))
+                .map(p => normalizePlatformName(p) as Engines);
+
+            tasks.push({
+                keywordId,
+                coreKeyword: config.coreKeyword,
+                extendedKeywords: config.extendedKeywords,
+                platforms: normalizedPlatforms,
+                dateQueried: targetDate
+            });
+        }
+
+        return tasks;
+    } catch (error) {
+        console.error('Error loading custom keywords config:', error);
+        return [];
+    }
 }
 
 /**
